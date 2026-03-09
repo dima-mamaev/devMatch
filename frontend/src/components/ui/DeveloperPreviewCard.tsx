@@ -28,7 +28,6 @@ export interface DeveloperPreviewData {
 interface DeveloperPreviewCardProps {
   developer: DeveloperPreviewData;
   isShortlisted?: boolean;
-  isShortlistFull?: boolean;
   isLoading?: boolean;
   onToggleShortlist?: (developerId: string) => void;
   onRemove?: (developerId: string) => void;
@@ -38,7 +37,6 @@ interface DeveloperPreviewCardProps {
 export function DeveloperPreviewCard({
   developer,
   isShortlisted = false,
-  isShortlistFull = false,
   isLoading = false,
   onToggleShortlist,
   onRemove,
@@ -162,19 +160,13 @@ export function DeveloperPreviewCard({
           ) : onToggleShortlist ? (
             <button
               onClick={() => onToggleShortlist(developer.id)}
-              disabled={isLoading || (isShortlistFull && !isShortlisted)}
+              disabled={isLoading}
               className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2 rounded-[14px] text-xs font-semibold text-white transition-colors disabled:opacity-50 ${
                 isShortlisted
                   ? "bg-emerald-600 hover:bg-emerald-700"
                   : "bg-indigo-600 hover:bg-indigo-700"
               }`}
-              title={
-                isShortlistFull && !isShortlisted
-                  ? "Shortlist is full (max 5)"
-                  : isShortlisted
-                    ? "Remove from shortlist"
-                    : "Add to shortlist"
-              }
+              title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
             >
               <BookmarkIcon className="w-3 h-3" />
               {isShortlisted ? "Shortlisted" : "Shortlist"}

@@ -39,7 +39,6 @@ export default function DevelopersPage() {
   const {
     isInShortlist,
     toggleShortlist,
-    isFull,
     isLoading: shortlistLoading,
   } = useShortlist();
 
@@ -155,7 +154,6 @@ export default function DevelopersPage() {
                   key={developer.id}
                   developer={developer}
                   isShortlisted={isInShortlist(developer.id)}
-                  isShortlistFull={isFull}
                   isLoading={shortlistLoading}
                   onToggleShortlist={toggleShortlist}
                 />

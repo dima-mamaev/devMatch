@@ -91,6 +91,8 @@ export type DeveloperConnection = {
 export type DeveloperFilterInput = {
   availabilityStatus?: InputMaybe<Array<AvailabilityStatus>>;
   excludeIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  hasIntroVideo?: InputMaybe<Scalars['Boolean']['input']>;
+  ids?: InputMaybe<Array<Scalars['ID']['input']>>;
   location?: InputMaybe<Scalars['String']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
   seniorityLevels?: InputMaybe<Array<SeniorityLevel>>;
@@ -505,7 +507,7 @@ export type GetDevelopersQueryVariables = Exact<{
 }>;
 
 
-export type GetDevelopersQuery = { getDevelopers: { total: number, page?: number | null, limit?: number | null, results: Array<{ id: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null }> } };
+export type GetDevelopersQuery = { getDevelopers: { total: number, page?: number | null, limit?: number | null, results: Array<{ id: string, firstName: string, lastName: string, jobTitle?: string | null, bio?: string | null, location?: string | null, seniorityLevel?: SeniorityLevel | null, availabilityStatus?: AvailabilityStatus | null, techStack: Array<string>, githubUrl?: string | null, linkedinUrl?: string | null, profilePhoto?: { id: string, url: string, type: MediaType } | null, introVideo?: { id: string, url: string } | null, introVideoThumbnail?: { id: string, url: string } | null }> } };
 
 export type GetMyRecruiterProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -948,6 +950,14 @@ export const GetDevelopersDocument = gql`
         id
         url
         type
+      }
+      introVideo {
+        id
+        url
+      }
+      introVideoThumbnail {
+        id
+        url
       }
     }
   }

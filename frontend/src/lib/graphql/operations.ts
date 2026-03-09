@@ -204,6 +204,14 @@ export const GET_DEVELOPERS = gql`
           url
           type
         }
+        introVideo {
+          id
+          url
+        }
+        introVideoThumbnail {
+          id
+          url
+        }
       }
     }
   }

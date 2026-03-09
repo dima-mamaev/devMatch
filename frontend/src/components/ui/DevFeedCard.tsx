@@ -24,7 +24,6 @@ function DevFeedCard({ developer }: DevFeedCardProps) {
   const {
     isInShortlist,
     toggleShortlist,
-    isFull,
     isLoading: shortlistLoading,
   } = useShortlist();
 
@@ -100,7 +99,7 @@ function DevFeedCard({ developer }: DevFeedCardProps) {
         </Link>
         <button
           onClick={() => toggleShortlist(developer.id)}
-          disabled={shortlistLoading || (isFull && !isShortlisted)}
+          disabled={shortlistLoading}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-colors disabled:opacity-50 ${
             isShortlisted
               ? "bg-emerald-600 hover:bg-emerald-700"

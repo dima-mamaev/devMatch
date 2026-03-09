@@ -7,8 +7,6 @@ import { Shortlist } from './models/shortlist.entity';
 import { User } from '../user/models/user.entity';
 import { Developer } from '../developer/models/developer.entity';
 
-const MAX_SHORTLIST_SIZE = 5;
-
 @Injectable()
 export class ShortlistService extends BasicService<Shortlist> {
   constructor(
@@ -74,14 +72,6 @@ export class ShortlistService extends BasicService<Shortlist> {
 
     if (existing) {
       throw new BadRequestException('Developer is already in your shortlist');
-    }
-
-    // Check shortlist size limit
-    const currentCount = await this.getShortlistCount(user.id);
-    if (currentCount >= MAX_SHORTLIST_SIZE) {
-      throw new BadRequestException(
-        `Shortlist is full. Maximum ${MAX_SHORTLIST_SIZE} developers allowed.`,
-      );
     }
 
     // Create shortlist entry

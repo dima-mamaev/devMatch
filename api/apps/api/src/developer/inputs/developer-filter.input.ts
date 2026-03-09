@@ -1,11 +1,17 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
-import { IsArray, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import type { UUID } from 'crypto';
 import { AvailabilityStatus } from '../../shared/enums/availability-status.enum';
 import { SeniorityLevel } from '../../shared/enums/seniority-level.enum';
 
 @InputType()
 export class DeveloperFilterInput {
+  @Field(() => [ID], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  ids?: UUID[]; // Only include these specific developer IDs
+
   @Field(() => [ID], { nullable: true })
   @IsOptional()
   @IsArray()
@@ -39,4 +45,9 @@ export class DeveloperFilterInput {
   @IsArray()
   @IsEnum(AvailabilityStatus, { each: true })
   availabilityStatus?: AvailabilityStatus[];
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  hasIntroVideo?: boolean; // Filter developers with/without intro video
 }

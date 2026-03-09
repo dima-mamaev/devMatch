@@ -4,7 +4,6 @@
  */
 
 const STORAGE_KEY = "devmatch_local_shortlist";
-const MAX_SHORTLIST_SIZE = 5;
 
 /**
  * Safely check if localStorage is available
@@ -46,7 +45,7 @@ export function getLocalShortlist(): string[] {
 
 /**
  * Add a developer to the local shortlist
- * @returns true if added successfully, false if already exists or list is full
+ * @returns true if added successfully, false if already exists
  */
 export function addToLocalShortlist(developerId: string): boolean {
   if (!isLocalStorageAvailable()) {
@@ -58,11 +57,6 @@ export function addToLocalShortlist(developerId: string): boolean {
 
     // Already in shortlist
     if (current.includes(developerId)) {
-      return false;
-    }
-
-    // Shortlist is full
-    if (current.length >= MAX_SHORTLIST_SIZE) {
       return false;
     }
 
@@ -116,20 +110,12 @@ export function clearLocalShortlist(): void {
 
 /**
  * Calculate which local IDs should be synced to the API.
- * Respects max size limit and deduplicates.
+ * Deduplicates IDs already in the API shortlist.
  * @param localIds - IDs from localStorage
  * @param apiIds - IDs already in the API shortlist
  * @returns Array of IDs to add to the API
  */
 export function getMergeAdditions(localIds: string[], apiIds: string[]): string[] {
   // Filter out duplicates (IDs already in API)
-  const newIds = localIds.filter((id) => !apiIds.includes(id));
-
-  // Calculate available slots
-  const availableSlots = MAX_SHORTLIST_SIZE - apiIds.length;
-
-  // Return only what fits
-  return newIds.slice(0, Math.max(0, availableSlots));
+  return localIds.filter((id) => !apiIds.includes(id));
 }
-
-export { MAX_SHORTLIST_SIZE };

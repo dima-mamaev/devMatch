@@ -3,7 +3,6 @@ import { useUser } from "./useUser";
 
 // Stable empty array reference to avoid infinite re-renders
 const EMPTY_ARRAY: string[] = [];
-const EMPTY_SHORTLIST_ARRAY: never[] = [];
 import {
   useGetMyShortlistQuery,
   useGetMyShortlistCountQuery,
@@ -18,7 +17,6 @@ import {
   removeFromLocalShortlist,
   isInLocalShortlist,
   clearLocalShortlist,
-  MAX_SHORTLIST_SIZE,
 } from "@/lib/localShortlist";
 
 export function useShortlist() {
@@ -82,7 +80,6 @@ export function useShortlist() {
 
   // Computed values based on mode
   const shortlistCount = isLocalMode ? localShortlistIds.length : apiShortlistCount;
-  const isFull = shortlistCount >= MAX_SHORTLIST_SIZE;
 
   const isInShortlist = useCallback(
     (developerId: string) => {
@@ -171,15 +168,16 @@ export function useShortlist() {
     }
   }, [isLocalMode]);
 
+  // Unified shortlist IDs - works for both local and API modes
+  const shortlistIds = isLocalMode
+    ? localShortlistIds
+    : apiShortlist.map((entry) => entry.developer.id);
+
   return {
-    // For authenticated users, return the full shortlist entries
-    // For local mode, return the IDs array (component will need to fetch developer details)
-    shortlist: isLocalMode ? EMPTY_SHORTLIST_ARRAY : apiShortlist,
-    localShortlistIds: isLocalMode ? localShortlistIds : EMPTY_ARRAY,
+    // Unified developer IDs array for both modes
+    shortlistIds,
     shortlistCount,
     shortlistLoading: isLocalMode ? false : (shortlistLoading || userLoading),
-    isFull,
-    maxSize: MAX_SHORTLIST_SIZE,
     isInShortlist,
     addToShortlist,
     removeFromShortlist,

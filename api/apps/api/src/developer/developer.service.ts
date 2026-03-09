@@ -74,12 +74,14 @@ export class DeveloperService extends BasicService<Developer> {
   ) {
     const { skip, take } = getPagingQuery(paging);
     const {
+      ids,
       excludeIds,
       search,
       techStack,
       location,
       seniorityLevels,
       availabilityStatus,
+      hasIntroVideo,
     } = filter;
 
     // Use QueryBuilder for search functionality
@@ -90,6 +92,10 @@ export class DeveloperService extends BasicService<Developer> {
       .leftJoinAndSelect('developer.introVideoThumbnail', 'introVideoThumbnail')
       .leftJoinAndSelect('developer.experiences', 'experiences')
       .leftJoinAndSelect('developer.projects', 'projects');
+
+    if (ids && ids.length > 0) {
+      queryBuilder.andWhere('developer.id IN (:...ids)', { ids });
+    }
 
     if (excludeIds && excludeIds.length > 0) {
       queryBuilder.andWhere('developer.id NOT IN (:...excludeIds)', { excludeIds });
@@ -116,6 +122,12 @@ export class DeveloperService extends BasicService<Developer> {
 
     if (availabilityStatus && availabilityStatus.length > 0) {
       queryBuilder.andWhere('developer.availabilityStatus IN (:...availabilityStatus)', { availabilityStatus });
+    }
+
+    if (hasIntroVideo === true) {
+      queryBuilder.andWhere('introVideo.id IS NOT NULL');
+    } else if (hasIntroVideo === false) {
+      queryBuilder.andWhere('introVideo.id IS NULL');
     }
 
     if (order) {

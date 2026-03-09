@@ -32,7 +32,6 @@ export default function DeveloperProfilePage() {
   const {
     isInShortlist,
     toggleShortlist,
-    isFull,
     isLoading: shortlistLoading,
   } = useShortlist();
 
@@ -129,18 +128,12 @@ export default function DeveloperProfilePage() {
                 </button>
                 <button
                   onClick={() => toggleShortlist(developer.id)}
-                  disabled={shortlistLoading || (isFull && !isShortlisted)}
+                  disabled={shortlistLoading}
                   className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors disabled:opacity-50 ${isShortlisted
                       ? "bg-emerald-600 hover:bg-emerald-700"
                       : "bg-indigo-600 hover:bg-indigo-700"
                     }`}
-                  title={
-                    isFull && !isShortlisted
-                      ? "Shortlist is full (max 5)"
-                      : isShortlisted
-                        ? "Remove from shortlist"
-                        : "Add to shortlist"
-                  }
+                  title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
                 >
                   <BookmarkIcon className="w-4 h-4" />
                   {isShortlisted ? "Shortlisted" : "Shortlist"}

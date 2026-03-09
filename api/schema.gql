@@ -79,6 +79,8 @@ type DeveloperConnection {
 input DeveloperFilterInput {
   availabilityStatus: [AvailabilityStatus!]
   excludeIds: [ID!]
+  hasIntroVideo: Boolean
+  ids: [ID!]
   location: String
   search: String
   seniorityLevels: [SeniorityLevel!]

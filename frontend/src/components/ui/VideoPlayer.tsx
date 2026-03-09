@@ -40,11 +40,15 @@ export function VideoPlayer({
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [showThumbnail, setShowThumbnail] = useState(!!thumbnail && !autoPlay);
 
-  const handlePlayClick = useCallback(() => {
+  const handleTogglePlay = useCallback(() => {
     if (videoRef.current) {
-      videoRef.current.play();
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
     }
-  }, []);
+  }, [isPlaying]);
 
   const handleVideoPlay = useCallback(() => {
     setIsPlaying(true);
@@ -92,15 +96,19 @@ export function VideoPlayer({
           <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/30 pointer-events-none" />
         </div>
       )}
+      {/* Clickable overlay for play/pause toggle */}
+      <button
+        onClick={handleTogglePlay}
+        className="absolute inset-0 w-full h-full cursor-pointer"
+        aria-label={isPlaying ? "Pause video" : "Play video"}
+      />
+
+      {/* Play button indicator (shown when paused) */}
       {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <button
-            onClick={handlePlayClick}
-            className="w-16 h-16 bg-white/20 border border-white/30 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors cursor-pointer"
-            aria-label="Play video"
-          >
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-16 h-16 bg-white/20 border border-white/30 rounded-full flex items-center justify-center">
             <PlayIcon className="w-6 h-6 text-white ml-1" />
-          </button>
+          </div>
         </div>
       )}
     </div>
