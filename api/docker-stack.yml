@@ -1,0 +1,121 @@
+version: '3.5'
+
+services:
+  api:
+    image: devmatch/api:${TAG}
+    env_file: .env
+    environment:
+      - NO_COLOR='true'
+      - TASK_SLOT='{{.Task.Slot}}'
+    ports:
+      - $PORT:$PORT
+    command: yarn start:prod
+    networks:
+      - default
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.5'
+          memory: 500m
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.node-1 == true
+  converter:
+    image: devmatch/api:${TAG}
+    env_file: .env
+    environment:
+      - NO_COLOR='true'
+      - TASK_SLOT='{{.Task.Slot}}'
+    command: yarn start:converter:prod
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2g
+      replicas: 2
+      placement:
+        constraints:
+          - node.labels.node-1 == true
+  thumbnail:
+    image: devmatch/api:${TAG}
+    env_file: .env
+    environment:
+      - NO_COLOR='true'
+      - TASK_SLOT='{{.Task.Slot}}'
+    command: yarn start:thumbnail:prod
+    deploy:
+      resources:
+        limits:
+          cpus: '0.7'
+          memory: 2g
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.node-1 == true
+  migration:
+    image: devmatch/api:${TAG}
+    env_file: .env
+    environment:
+      - NO_COLOR='true'
+      - TASK_SLOT='{{.Task.Slot}}'
+    command: yarn db:up
+    deploy:
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.node-1 == true
+  postgresdb17:
+    image: postgres:17
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgresql:/var/lib/postgresql/data
+    command: ['postgres', '-c', 'log_statement=all']
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.node-1 == true
+  redis:
+    image: redis:7-alpine
+    environment:
+      NO_COLOR: 'true'
+    volumes:
+      - ./redis:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy noeviction
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'PING']
+      interval: 10s
+      timeout: 20s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512m
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.node-1 == true
+  adminer:
+    env_file: .env
+    image: adminer
+    ports:
+      - 8080:8080
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.node-1 == true

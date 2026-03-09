@@ -1,0 +1,389 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Developer availability status"""
+enum AvailabilityStatus {
+  Available
+  NotAvailable
+  OpenToOffers
+}
+
+input ChangePasswordInput {
+  confirm: String!
+  password: String!
+}
+
+input CreateExperienceInput {
+  companyName: String!
+  description: String
+  endYear: Int
+  position: String!
+  startYear: Int!
+}
+
+input CreateProjectInput {
+  description: String
+  name: String!
+  techStack: [String!]
+  url: String
+}
+
+"""Custom upload scalar type"""
+scalar CustomUpload
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DeleteResult {
+  affected: Float
+}
+
+input DeleteUserInput {
+  id: ID!
+}
+
+"""Developer"""
+type Developer {
+  availabilityStatus: AvailabilityStatus
+  bio: String
+  createdAt: DateTime!
+  experiences: [Experience!]!
+  firstName: String!
+  githubUrl: String
+  id: ID!
+  introVideo: Media
+  introVideoThumbnail: Media
+  jobTitle: String
+  lastName: String!
+  linkedinUrl: String
+  location: String
+  onboardingCompleted: Boolean!
+  personalSiteUrl: String
+  profilePhoto: Media
+  projects: [Project!]!
+  seniorityLevel: SeniorityLevel
+  techStack: [String!]!
+}
+
+"""Paginated list of developers"""
+type DeveloperConnection {
+  limit: Int
+  page: Int
+  results: [Developer!]!
+  total: Int!
+}
+
+input DeveloperFilterInput {
+  availabilityStatus: [AvailabilityStatus!]
+  excludeIds: [ID!]
+  location: String
+  search: String
+  seniorityLevels: [SeniorityLevel!]
+  techStack: [String!]
+}
+
+input DeveloperSortInput {
+  createdAt: Sort
+  firstName: Sort
+  lastName: Sort
+  seniorityLevel: Sort
+}
+
+"""Experience"""
+type Experience {
+  companyName: String!
+  description: String
+  endYear: Int
+  id: ID!
+  position: String!
+  startYear: Int!
+}
+
+input GetUserInput {
+  id: ID!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+"""Media"""
+type Media {
+  id: ID!
+  processingStatus: MediaProcessingStatus
+  type: MediaType!
+  url: String!
+}
+
+"""Media processing status"""
+enum MediaProcessingStatus {
+  Failed
+  Processing
+  Ready
+}
+
+"""Type of media"""
+enum MediaType {
+  Image
+  Video
+}
+
+type Mutation {
+  """Add work experience"""
+  addExperience(input: CreateExperienceInput!): Experience!
+
+  """Add portfolio project"""
+  addProject(input: CreateProjectInput!): Project!
+
+  """Add developer to shortlist"""
+  addToShortlist(developerId: ID!): Shortlist!
+
+  """Clear entire shortlist"""
+  clearMyShortlist: Boolean!
+
+  """Create initial developer profile"""
+  createDeveloperProfile(firstName: String!, lastName: String!): Developer!
+
+  """Create initial recruiter profile"""
+  createRecruiterProfile(firstName: String!, lastName: String!): Recruiter!
+
+  """Delete work experience"""
+  deleteExperience(id: ID!): Boolean!
+
+  """Delete intro video and thumbnail"""
+  deleteIntroVideo: Boolean!
+
+  """Delete profile photo"""
+  deleteProfilePhoto: Boolean!
+
+  """Delete portfolio project"""
+  deleteProject(id: ID!): Boolean!
+
+  """Remove developer from shortlist"""
+  removeFromShortlist(developerId: ID!): Boolean!
+
+  """Update developer profile (creates if not exists)"""
+  updateDeveloperProfile(input: UpdateDeveloperInput!): Developer!
+
+  """Update work experience"""
+  updateExperience(input: UpdateExperienceInput!): Experience!
+
+  """Update portfolio project"""
+  updateProject(input: UpdateProjectInput!): Project!
+
+  """Update recruiter profile"""
+  updateRecruiterProfile(input: UpdateRecruiterInput!): Recruiter!
+
+  """Upload intro video (queued for processing)"""
+  uploadIntroVideo(file: CustomUpload!): Boolean!
+
+  """Upload profile photo (direct S3 upload)"""
+  uploadProfilePhoto(file: CustomUpload!): Media!
+  user: UserMutation!
+}
+
+input PagingInput {
+  limit: Int = 20
+  page: Int = 1
+}
+
+union Profile = Developer | Recruiter
+
+"""Project"""
+type Project {
+  description: String
+  id: ID!
+  name: String!
+  techStack: [String!]!
+  url: String
+}
+
+type Query {
+  """Get a single developer by ID"""
+  getDeveloper(id: ID!): Developer
+
+  """Get all developers with pagination and filtering"""
+  getDevelopers(filter: DeveloperFilterInput, paging: PagingInput, sort: DeveloperSortInput): DeveloperConnection!
+
+  """Get current user developer profile"""
+  getMyDeveloperProfile: Developer
+
+  """Get current user recruiter profile"""
+  getMyRecruiterProfile: Recruiter
+
+  """Get current user shortlist"""
+  getMyShortlist: [Shortlist!]!
+
+  """Get shortlist count"""
+  getMyShortlistCount: Int!
+
+  """Check if developer is in shortlist"""
+  isInMyShortlist(developerId: ID!): Boolean!
+  user: UserQuery!
+}
+
+"""Recruiter"""
+type Recruiter {
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: ID!
+  lastName: String!
+}
+
+"""Developer seniority/experience level"""
+enum SeniorityLevel {
+  """0-2 years of experience"""
+  Junior
+
+  """8-12 years of experience"""
+  Lead
+
+  """2-4 years of experience"""
+  Mid
+
+  """12+ years of experience"""
+  Principal
+
+  """4-8 years of experience"""
+  Senior
+}
+
+"""Shortlist entry"""
+type Shortlist {
+  createdAt: DateTime!
+  developer: Developer!
+  id: ID!
+}
+
+"""Sort"""
+enum Sort {
+  ASC
+  DESC
+}
+
+input UpdateDeveloperInput {
+  availabilityStatus: AvailabilityStatus
+  bio: String
+  firstName: String
+  githubUrl: String
+  jobTitle: String
+  lastName: String
+  linkedinUrl: String
+  location: String
+  onboardingCompleted: Boolean
+  personalSiteUrl: String
+  seniorityLevel: SeniorityLevel
+  techStack: [String!]
+}
+
+input UpdateExperienceInput {
+  companyName: String
+  description: String
+  endYear: Int
+  id: ID!
+  position: String
+  startYear: Int
+}
+
+input UpdateProjectInput {
+  description: String
+  id: ID!
+  name: String
+  techStack: [String!]
+  url: String
+}
+
+input UpdateRecruiterInput {
+  firstName: String
+  lastName: String
+}
+
+input UpdateUserInput {
+  id: ID!
+  status: UserStatus!
+}
+
+input UpdateUserRoleInput {
+  id: ID!
+  role: UserRole!
+}
+
+"""User"""
+type User {
+  authProvider: String!
+  createdAt: DateTime!
+  email: String!
+  firstName: String
+  id: ID!
+  lastName: String
+  profile: Profile
+  role: UserRole!
+  status: UserStatus!
+}
+
+input UserFilterInput {
+  search: String
+}
+
+type UserMutation {
+  """Change own password"""
+  changePassword(input: ChangePasswordInput!): User!
+
+  """Delete user (Admin only)"""
+  delete(input: DeleteUserInput!): DeleteResult!
+
+  """Delete self"""
+  deleteMe: DeleteResult!
+
+  """Update user status (Admin only)"""
+  update(input: UpdateUserInput!): User!
+
+  """Update user role (Admin only)"""
+  updateRole(input: UpdateUserRoleInput!): User!
+}
+
+"""User paging result"""
+type UserPagingResult {
+  limit: Float
+  page: Float
+  results: [User!]!
+  total: Float
+}
+
+type UserQuery {
+  """Get current user"""
+  getMe: User!
+
+  """Get user by id (Admin only)"""
+  getUser(input: GetUserInput!): User!
+
+  """Get users with filtering, sorting and paging (Admin only)"""
+  getUsers(filter: UserFilterInput, paging: PagingInput, sort: UserSortInput): UserPagingResult!
+}
+
+"""User role"""
+enum UserRole {
+  Admin
+  Developer
+  Recruiter
+}
+
+input UserSortInput {
+  email: Sort
+  id: Sort
+  name: Sort
+  role: Sort
+  status: Sort
+}
+
+"""User status"""
+enum UserStatus {
+  Active
+  Inactive
+  Suspended
+}

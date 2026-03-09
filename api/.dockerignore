@@ -1,0 +1,7 @@
+/.idea
+/.git
+/var
+/node_modules
+/dist
+/postgresql
+/redis

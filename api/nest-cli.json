@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/api/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": false,
+    "tsConfigPath": "apps/api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/api",
+  "projects": {
+    "api": {
+      "type": "application",
+      "root": "apps/api",
+      "entryFile": "main",
+      "sourceRoot": "apps/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api/tsconfig.app.json"
+      }
+    },
+    "thumbnail-generator": {
+      "type": "application",
+      "root": "apps/thumbnail-generator",
+      "entryFile": "thumbnail-generator/src/main",
+      "sourceRoot": "apps/thumbnail-generator/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/thumbnail-generator/tsconfig.app.json"
+      }
+    },
+    "video-converter": {
+      "type": "application",
+      "root": "apps/video-converter",
+      "entryFile": "video-converter/src/main",
+      "sourceRoot": "apps/video-converter/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/video-converter/tsconfig.app.json"
+      }
+    }
+  }
+}
