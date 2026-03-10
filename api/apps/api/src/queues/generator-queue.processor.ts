@@ -25,12 +25,10 @@ export class GeneratorQueueProcessor extends WorkerHost {
   }
 
   async saveThumbnail(data: GenerateThumbnailOutputData) {
-    // Create media record for the generated thumbnail
     const [createdMedia] = await this.mediaService.create([
       { url: data.path, type: MediaType.Image },
     ]);
 
-    // Link the thumbnail to the developer's intro video
     if (data.developerId) {
       const developer = await this.developerService.findById(data.developerId);
       if (developer) {
@@ -40,7 +38,6 @@ export class GeneratorQueueProcessor extends WorkerHost {
           createdMedia.id,
         );
 
-        // Mark video processing as complete
         if (data.videoMediaId) {
           await this.mediaService.updateProcessingStatus(
             data.videoMediaId,

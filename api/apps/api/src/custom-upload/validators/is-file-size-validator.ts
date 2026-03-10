@@ -22,7 +22,7 @@ export class IsFileSize implements ValidatorConstraintInterface {
     const [params] = validatorArguments.constraints as ValidatorParams[];
     const file = await value;
 
-    const maxSize = 1024 * 1024 * params.maxSize; // maxSize in MB
+    const maxSize = 1024 * 1024 * params.maxSize;
     return file.buffer.length <= maxSize;
   }
 

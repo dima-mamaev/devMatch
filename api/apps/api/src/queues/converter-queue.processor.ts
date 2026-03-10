@@ -23,13 +23,11 @@ export class ConverterQueueProcessor extends WorkerHost {
   }
 
   async saveVideo(data: ConvertVideoOutputData) {
-    // Update the placeholder media record with the processed video URL
     const updatedMedia = await this.mediaService.updateUrl(
       data.videoMediaId,
       data.outputPath,
     );
 
-    // Queue thumbnail generation
     if (data.developerId) {
       await this.generatorQueueService.enqueueGenerateThumbnail({
         videoPath: data.outputPath,

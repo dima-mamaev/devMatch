@@ -24,7 +24,6 @@ export class IsFileType implements ValidatorConstraintInterface {
     const [params] = validatorArguments.constraints as ValidatorParams[];
     const file = await value;
 
-    // remove first character '.' from ext part name
     const ext = path.extname(file.filename?.toLowerCase() ?? '').slice(1);
     const validTypes = params.validTypes;
 

@@ -29,7 +29,7 @@ export class DeveloperMutationResolver {
     private readonly mediaService: MediaService,
     private readonly converterQueueService: ConverterQueueService,
     private readonly cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   private async getDeveloperOrFail(userId: UUID): Promise<Developer> {
     const developer = await this.developerService.findByUserId(userId);
@@ -62,7 +62,6 @@ export class DeveloperMutationResolver {
     let developer = await this.developerService.findByUserId(user.id);
 
     if (!developer) {
-      // Create profile if it doesn't exist (requires firstName and lastName)
       if (!input.firstName || !input.lastName) {
         throw new NotFoundException(
           'Developer profile not found. firstName and lastName are required to create a new profile.',
@@ -78,7 +77,6 @@ export class DeveloperMutationResolver {
     return this.developerService.updateDeveloper(developer.id, input);
   }
 
-  // Media mutations
   @Mutation(() => Media, { description: 'Upload profile photo (direct S3 upload)' })
   @Roles([UserRole.Developer])
   async uploadProfilePhoto(
@@ -97,13 +95,9 @@ export class DeveloperMutationResolver {
 
     const oldPhotoId = developer.profilePhoto?.id;
 
-    // Upload new photo
     const [media] = await this.mediaService.createMedia([file], developer.id, MediaType.Image);
-
-    // Link new photo to developer
     await this.developerService.updateProfilePhoto(developer.id, media.id);
 
-    // Delete old photo after unlinking
     if (oldPhotoId) {
       await this.mediaService.deleteMedia([oldPhotoId]);
     }
@@ -132,15 +126,12 @@ export class DeveloperMutationResolver {
   ): Promise<boolean> {
     const developer = await this.getDeveloperOrFail(user.id);
 
-    // Delete old intro video and thumbnail if exists
     if (developer.introVideo) {
       await this.mediaService.deleteMedia([developer.introVideo.id]);
     }
     if (developer.introVideoThumbnail) {
       await this.mediaService.deleteMedia([developer.introVideoThumbnail.id]);
     }
-
-    // Upload raw video to Cloudinary temp location for processing
     const publicId = `${developer.id}_${Date.now()}`;
     const url = await this.cloudinaryService.uploadVideo(
       publicId,
@@ -148,19 +139,16 @@ export class DeveloperMutationResolver {
       'devmatch/videos-temp',
     );
 
-    // Create placeholder video record with Processing status
     const [placeholderMedia] = await this.mediaService.create([
       {
-        url: url, // Temporary URL, will be updated after conversion
+        url: url,
         type: MediaType.Video,
         processingStatus: MediaProcessingStatus.Processing,
       },
     ]);
 
-    // Link placeholder to developer
     await this.developerService.updateIntroVideo(developer.id, placeholderMedia.id);
 
-    // Queue for video processing
     await this.converterQueueService.enqueueConvertVideo({
       inputPath: url,
       developerId: developer.id,
@@ -186,7 +174,6 @@ export class DeveloperMutationResolver {
     return true;
   }
 
-  // Experience mutations
   @Mutation(() => Experience, { description: 'Add work experience' })
   @Roles([UserRole.Developer])
   async addExperience(
@@ -217,7 +204,6 @@ export class DeveloperMutationResolver {
     return this.developerService.deleteExperience(developer.id, experienceId);
   }
 
-  // Project mutations
   @Mutation(() => Project, { description: 'Add portfolio project' })
   @Roles([UserRole.Developer])
   async addProject(

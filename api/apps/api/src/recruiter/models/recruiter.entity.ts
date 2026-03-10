@@ -26,7 +26,6 @@ export class Recruiter extends BasicEntity {
   @Column()
   lastName: string;
 
-  // Computed field - expose email from user
   @Field(() => String)
   get email(): string {
     return this.user?.email;

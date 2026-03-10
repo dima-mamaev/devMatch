@@ -1,11 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  ArrayOverlap,
-  ILike,
-  Repository,
-  In,
-} from 'typeorm';
+import { Repository } from 'typeorm';
 import type { UUID } from 'crypto';
 import { BasicService } from '../shared/services/basic.service';
 import { Developer } from './models/developer.entity';
@@ -84,7 +79,6 @@ export class DeveloperService extends BasicService<Developer> {
       hasIntroVideo,
     } = filter;
 
-    // Use QueryBuilder for search functionality
     const queryBuilder = this.repository.createQueryBuilder('developer')
       .leftJoinAndSelect('developer.user', 'user')
       .leftJoinAndSelect('developer.profilePhoto', 'profilePhoto')
@@ -158,7 +152,6 @@ export class DeveloperService extends BasicService<Developer> {
     return (result.affected ?? 0) > 0;
   }
 
-  // Experience methods
   async addExperience(developerId: UUID, input: CreateExperienceInput): Promise<Experience> {
     const developer = await this.findById(developerId);
     if (!developer) {
@@ -197,7 +190,6 @@ export class DeveloperService extends BasicService<Developer> {
     return (result.affected ?? 0) > 0;
   }
 
-  // Project methods
   async addProject(developerId: UUID, input: CreateProjectInput): Promise<Project> {
     const developer = await this.findById(developerId);
     if (!developer) {
@@ -237,7 +229,6 @@ export class DeveloperService extends BasicService<Developer> {
     return (result.affected ?? 0) > 0;
   }
 
-  // Media methods
   async updateProfilePhoto(developerId: UUID, mediaId: UUID | null): Promise<Developer> {
     await this.repository.update(developerId, { profilePhoto: mediaId ? { id: mediaId } : null } as any);
     return this.findById(developerId) as Promise<Developer>;

@@ -13,11 +13,10 @@ import { User } from '../user/models/user.entity';
 
 @Resolver(() => Developer)
 export class DeveloperQueryResolver {
-  constructor(private readonly developerService: DeveloperService) {}
+  constructor(private readonly developerService: DeveloperService) { }
 
   @ResolveField(() => String, { description: 'Developer email from associated user' })
   async email(@Parent() developer: Developer): Promise<string> {
-    // User is already loaded via relations in findById
     if (developer.user?.email) {
       return developer.user.email;
     }
@@ -25,7 +24,6 @@ export class DeveloperQueryResolver {
     return developerWithUser?.user?.email ?? '';
   }
 
-  // Public - anyone can view developers
   @Query(() => DeveloperConnection, { description: 'Get all developers with pagination and filtering' })
   async getDevelopers(
     @Args('paging', { nullable: true }) paging?: PagingInput,
@@ -39,7 +37,6 @@ export class DeveloperQueryResolver {
     );
   }
 
-  // Public - anyone can view a single developer
   @Query(() => Developer, { nullable: true, description: 'Get a single developer by ID' })
   async getDeveloper(
     @Args('id', { type: () => ID }) id: UUID,
@@ -47,7 +44,6 @@ export class DeveloperQueryResolver {
     return this.developerService.findById(id);
   }
 
-  // Authenticated - Developer only
   @Query(() => Developer, { nullable: true, description: 'Get current user developer profile' })
   @Roles([UserRole.Developer])
   async getMyDeveloperProfile(
