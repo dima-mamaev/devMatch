@@ -5,8 +5,6 @@ import { UserQueryResolver } from './user.query.resolver';
 import { UserService } from './user.service';
 import { UserMutationResolver } from './user.mutation.resolver';
 import { UserResolver } from './user.resolver';
-import { NotActiveUserValidator } from './validators/not-active-user-validator';
-import { CouldChangePasswordValidator } from './validators/could-change-password-validator';
 import { DeveloperModule } from '../developer/developer.module';
 import { RecruiterModule } from '../recruiter/recruiter.module';
 import { MediaModule } from '../media/media.module';
@@ -23,8 +21,6 @@ import { MediaModule } from '../media/media.module';
     UserQueryResolver,
     UserMutationResolver,
     UserResolver,
-    CouldChangePasswordValidator,
-    NotActiveUserValidator,
   ],
   exports: [UserService],
 })

@@ -9,11 +9,6 @@ enum AvailabilityStatus {
   OpenToOffers
 }
 
-input ChangePasswordInput {
-  confirm: String!
-  password: String!
-}
-
 input CreateExperienceInput {
   companyName: String!
   description: String
@@ -39,10 +34,6 @@ scalar DateTime
 
 type DeleteResult {
   affected: Float
-}
-
-input DeleteUserInput {
-  id: ID!
 }
 
 """Developer"""
@@ -105,10 +96,6 @@ type Experience {
   id: ID!
   position: String!
   startYear: Int!
-}
-
-input GetUserInput {
-  id: ID!
 }
 
 """
@@ -308,16 +295,6 @@ input UpdateRecruiterInput {
   lastName: String
 }
 
-input UpdateUserInput {
-  id: ID!
-  status: UserStatus!
-}
-
-input UpdateUserRoleInput {
-  id: ID!
-  role: UserRole!
-}
-
 """User"""
 type User {
   authProvider: String!
@@ -331,44 +308,14 @@ type User {
   status: UserStatus!
 }
 
-input UserFilterInput {
-  search: String
-}
-
 type UserMutation {
-  """Change own password"""
-  changePassword(input: ChangePasswordInput!): User!
-
-  """Delete user (Admin only)"""
-  delete(input: DeleteUserInput!): DeleteResult!
-
   """Delete self"""
   deleteMe: DeleteResult!
-
-  """Update user status (Admin only)"""
-  update(input: UpdateUserInput!): User!
-
-  """Update user role (Admin only)"""
-  updateRole(input: UpdateUserRoleInput!): User!
-}
-
-"""User paging result"""
-type UserPagingResult {
-  limit: Float
-  page: Float
-  results: [User!]!
-  total: Float
 }
 
 type UserQuery {
   """Get current user"""
   getMe: User!
-
-  """Get user by id (Admin only)"""
-  getUser(input: GetUserInput!): User!
-
-  """Get users with filtering, sorting and paging (Admin only)"""
-  getUsers(filter: UserFilterInput, paging: PagingInput, sort: UserSortInput): UserPagingResult!
 }
 
 """User role"""
@@ -376,14 +323,6 @@ enum UserRole {
   Admin
   Developer
   Recruiter
-}
-
-input UserSortInput {
-  email: Sort
-  id: Sort
-  name: Sort
-  role: Sort
-  status: Sort
 }
 
 """User status"""

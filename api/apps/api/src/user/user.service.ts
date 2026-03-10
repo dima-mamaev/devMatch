@@ -1,14 +1,10 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import type { UUID } from 'crypto';
 import { BasicService } from '../shared/services/basic.service';
 import { Auth0Service } from '../shared/services/auth0.service';
 import { User } from './models/user.entity';
-import { PagingInput } from '../shared/inputs/paging.input';
-import { UserFilterInput } from './inputs/user-filter.input';
-import { UserSortInput } from './inputs/user-sort.input';
-import { getPagingQuery } from '../shared/utils/get-paging-query';
 import { DeveloperService } from '../developer/developer.service';
 import { RecruiterService } from '../recruiter/recruiter.service';
 import { MediaService } from '../media/media.service';
@@ -75,30 +71,4 @@ export class UserService extends BasicService<User> {
     return { affected: 1 };
   }
 
-  async getUsersWithSortAndPaging(
-    paging: PagingInput,
-    filter: UserFilterInput = {},
-    order?: UserSortInput,
-  ) {
-    const { skip, take } = getPagingQuery(paging);
-    const { search } = filter;
-    const [results, total] = await this.repository.findAndCount({
-      ...(search && {
-        where: [{ email: ILike(`%${search}%`) }],
-      }),
-      order,
-      skip,
-      take,
-    });
-
-    return { results, total, ...paging };
-  }
-
-  async changePassword(newPassword: string, user: User) {
-    await this.auth0Service.users.update(
-      { id: user.auth0Id },
-      { password: newPassword },
-    );
-    return this.findOneBy({ id: user.id });
-  }
 }
