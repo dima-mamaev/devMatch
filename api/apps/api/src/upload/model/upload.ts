@@ -1,6 +1,6 @@
 import { IsOptional } from 'class-validator';
 
-export class CustomUpload {
+export class FileUpload {
   @IsOptional()
   buffer: Buffer;
 

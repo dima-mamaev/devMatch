@@ -5,7 +5,7 @@ import { RoleGuard } from './guards/role.guard';
 import { UserContextInterceptor } from './interceptors/user-context.interceptor';
 import { CloudinaryService } from './services/cloudinary.service';
 import { MediaModule } from '../media/media.module';
-import { CustomUploadModule } from '../custom-upload/custom-upload.module';
+import { UploadModule } from '../upload/upload.module';
 import { QueuesModule } from '../queues/queues.module';
 import { SystemGuard } from './guards/system.guard';
 import { TransactionService } from './services/transaction.service';
@@ -16,7 +16,7 @@ import { ShortlistModule } from '../shortlist/shortlist.module';
 const modules = [
   UserModule,
   MediaModule,
-  CustomUploadModule,
+  UploadModule,
   QueuesModule,
   DeveloperModule,
   RecruiterModule,

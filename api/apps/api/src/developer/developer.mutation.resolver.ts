@@ -17,7 +17,7 @@ import { Roles } from '../shared/decorators/roles.decorator';
 import { UserRole } from '../shared/enums/user-role.enum';
 import { ActiveUser } from '../shared/decorators/active-user.decorator';
 import { User } from '../user/models/user.entity';
-import { CustomUpload } from '../custom-upload/model/upload';
+import { FileUpload } from '../upload/model/upload';
 import { MediaType } from '../shared/enums/media-type.enum';
 import { MediaProcessingStatus } from '../shared/enums/media-processing-status.enum';
 import { CloudinaryService } from '../shared/services/cloudinary.service';
@@ -81,7 +81,7 @@ export class DeveloperMutationResolver {
   @Roles([UserRole.Developer])
   async uploadProfilePhoto(
     @ActiveUser() user: User,
-    @Args('file', { type: () => CustomUpload }) file: CustomUpload,
+    @Args('file', { type: () => FileUpload }) file: FileUpload,
   ): Promise<Media> {
     console.log('[uploadProfilePhoto] file received:', {
       filename: file.filename,
@@ -122,7 +122,7 @@ export class DeveloperMutationResolver {
   @Roles([UserRole.Developer])
   async uploadIntroVideo(
     @ActiveUser() user: User,
-    @Args('file', { type: () => CustomUpload }) file: CustomUpload,
+    @Args('file', { type: () => FileUpload }) file: FileUpload,
   ): Promise<boolean> {
     const developer = await this.getDeveloperOrFail(user.id);
 

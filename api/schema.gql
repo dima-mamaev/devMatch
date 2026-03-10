@@ -24,9 +24,6 @@ input CreateProjectInput {
   url: String
 }
 
-"""Custom upload scalar type"""
-scalar CustomUpload
-
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -171,10 +168,10 @@ type Mutation {
   updateRecruiterProfile(input: UpdateRecruiterInput!): Recruiter!
 
   """Upload intro video (queued for processing)"""
-  uploadIntroVideo(file: CustomUpload!): Boolean!
+  uploadIntroVideo(file: Upload!): Boolean!
 
   """Upload profile photo (direct S3 upload)"""
-  uploadProfilePhoto(file: CustomUpload!): Media!
+  uploadProfilePhoto(file: Upload!): Media!
   user: UserMutation!
 }
 
@@ -294,6 +291,9 @@ input UpdateRecruiterInput {
   firstName: String
   lastName: String
 }
+
+"""File upload scalar type"""
+scalar Upload
 
 """User"""
 type User {

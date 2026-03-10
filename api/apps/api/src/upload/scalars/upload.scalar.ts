@@ -1,26 +1,26 @@
 import { CustomScalar, Scalar } from '@nestjs/graphql';
 import { Injectable } from '@nestjs/common';
 import { GraphQLUpload, Upload } from 'graphql-upload-ts';
-import { CustomUpload } from '../model/upload';
+import { FileUpload } from '../model/upload';
 import { plainToClass } from 'class-transformer';
 import { stream2buffer } from '../../shared/utils/stream2buffer';
 import { ValueNode } from 'graphql/language/ast';
 
-@Scalar('CustomUpload', () => CustomUpload)
+@Scalar('Upload', () => FileUpload)
 @Injectable()
-export class CustomUploadScalar implements CustomScalar<
+export class UploadScalar implements CustomScalar<
   any,
-  Promise<CustomUpload>
+  Promise<FileUpload>
 > {
-  description = 'Custom upload scalar type';
+  description = 'File upload scalar type';
 
   async parseValue(value: Upload) {
     await value.promise;
     if (!value.file) {
-      return new CustomUpload();
+      return new FileUpload();
     }
     const buffer = await stream2buffer(value.file.createReadStream());
-    return plainToClass(CustomUpload, {
+    return plainToClass(FileUpload, {
       filename: value.file.filename,
       mimetype: value.file.mimetype,
       encoding: value.file.encoding,

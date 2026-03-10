@@ -4,7 +4,7 @@ import { In, Repository } from 'typeorm';
 import { UUID } from 'crypto';
 import { Media } from './models/media.entity';
 import { BasicService } from '../shared/services/basic.service';
-import { CustomUpload } from '../custom-upload/model/upload';
+import { FileUpload } from '../upload/model/upload';
 import { MediaType } from '../shared/enums/media-type.enum';
 import { MediaProcessingStatus } from '../shared/enums/media-processing-status.enum';
 import { CloudinaryService } from '../shared/services/cloudinary.service';
@@ -19,7 +19,7 @@ export class MediaService extends BasicService<Media> {
     super(repository);
   }
 
-  async createMedia(files: CustomUpload[], entityId: string, type: MediaType) {
+  async createMedia(files: FileUpload[], entityId: string, type: MediaType) {
     const uploadMethod = type === MediaType.Video
       ? this.cloudinaryService.uploadVideo.bind(this.cloudinaryService)
       : this.cloudinaryService.uploadImage.bind(this.cloudinaryService);
