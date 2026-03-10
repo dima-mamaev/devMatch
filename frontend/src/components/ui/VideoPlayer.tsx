@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { PlayIcon } from "@/components/icons";
 
 interface VideoPlayerProps {
@@ -69,19 +69,33 @@ export function VideoPlayer({
     onEnded?.();
   }, [thumbnail, loop, onEnded]);
 
+  // React to autoPlay prop changes (for swiper slide activation)
+  useEffect(() => {
+    if (videoRef.current) {
+      if (autoPlay && !isPlaying) {
+        videoRef.current.play().catch(() => {
+          // Autoplay was prevented, user needs to interact first
+        });
+      } else if (!autoPlay && isPlaying) {
+        videoRef.current.pause();
+      }
+    }
+  }, [autoPlay, isPlaying]);
+
   const aspectClass = aspectRatioClasses[aspectRatio];
 
   return (
-    <div className={`relative overflow-hidden ${aspectClass} ${className}`}>
+    <div className={`relative overflow-hidden touch-pan-y ${aspectClass} ${className}`}>
       <video
         ref={videoRef}
         src={url}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover cursor-pointer touch-pan-y"
         controls={controls && !showThumbnail}
         autoPlay={autoPlay}
         muted={muted || autoPlay}
         loop={loop}
         playsInline
+        onClick={handleTogglePlay}
         onPlay={handleVideoPlay}
         onPause={handleVideoPause}
         onEnded={handleVideoEnded}
@@ -96,19 +110,16 @@ export function VideoPlayer({
           <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/30 pointer-events-none" />
         </div>
       )}
-      {/* Clickable overlay for play/pause toggle */}
-      <button
-        onClick={handleTogglePlay}
-        className="absolute inset-0 w-full h-full cursor-pointer"
-        aria-label={isPlaying ? "Pause video" : "Play video"}
-      />
-
-      {/* Play button indicator (shown when paused) */}
+      {/* Play/Pause button - only the icon is clickable */}
       {!isPlaying && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-16 h-16 bg-white/20 border border-white/30 rounded-full flex items-center justify-center">
+          <button
+            onClick={handleTogglePlay}
+            className="w-16 h-16 bg-white/20 border border-white/30 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors cursor-pointer pointer-events-auto"
+            aria-label="Play video"
+          >
             <PlayIcon className="w-6 h-6 text-white ml-1" />
-          </div>
+          </button>
         </div>
       )}
     </div>
