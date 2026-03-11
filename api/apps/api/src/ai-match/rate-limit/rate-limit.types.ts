@@ -1,4 +1,4 @@
-export type UserType = 'guest' | 'authenticated' | 'recruiter';
+export type UserType = 'guest' | 'authenticated';
 
 export interface RateLimitInfo {
   remaining: number;

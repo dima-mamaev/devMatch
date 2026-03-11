@@ -50,7 +50,8 @@
     "docker:build:api": "docker build --target api -t devmatch-api .",
     "docker:build:ai-agent": "docker build --target ai-agent -t devmatch-ai-agent .",
     "docker:build:cron": "docker build --target cron -t devmatch-cron .",
-    "docker:build:converter": "docker build --target video-converter -t devmatch-converter ."
+    "docker:build:converter": "docker build --target video-converter -t devmatch-converter .",
+    "ai:cleanup": "ts-node apps/cron/src/scripts/dev-cleanup.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",

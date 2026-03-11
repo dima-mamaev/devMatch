@@ -13,7 +13,6 @@ import { AIMatchSession } from './models/ai-match.model.js';
 import { ActiveUser } from '../shared/decorators/active-user.decorator.js';
 import { User } from '../user/models/user.entity.js';
 import { UserType } from './rate-limit/rate-limit.types.js';
-import { UserRole } from '../shared/enums/user-role.enum.js';
 import { SkipSystemGuard } from '../shared/decorators/skip-system-guard.decorator.js';
 
 @Resolver()
@@ -44,7 +43,6 @@ export class AIMatchMutationResolver {
     return {
       sessionId: session.sessionId,
       userType,
-      maxResults: this.rateLimitService.getMaxResults(userType),
       conversationHistory: session.conversationHistory || [],
     };
   }
@@ -138,9 +136,8 @@ export class AIMatchMutationResolver {
       };
     }
 
-    const isPaidRecruiter = user.role === UserRole.Recruiter;
     return {
-      userType: isPaidRecruiter ? 'recruiter' : 'authenticated',
+      userType: 'authenticated',
       identifier: user.id,
     };
   }

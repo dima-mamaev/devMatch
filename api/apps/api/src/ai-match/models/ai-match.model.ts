@@ -179,9 +179,6 @@ export class AIMatchSession {
   @Field(() => String)
   userType: string;
 
-  @Field(() => Int)
-  maxResults: number;
-
   @Field(() => [ConversationMessage])
   conversationHistory: ConversationMessage[];
 }

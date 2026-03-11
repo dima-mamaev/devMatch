@@ -20,18 +20,43 @@ export class SessionService implements OnModuleDestroy {
     sessionId: string | null,
     userId: string | null,
   ): Promise<SessionState> {
+    if (userId) {
+      const userSession = await this.getSessionByUserId(userId);
+      if (userSession) {
+        await this.touchSession(userSession.sessionId);
+        return userSession;
+      }
+      const newSessionId = randomUUID();
+      const session: SessionState = {
+        sessionId: newSessionId,
+        userId,
+        threadId: null,
+        messageQueue: [],
+        conversationHistory: [],
+        createdAt: new Date().toISOString(),
+        lastActivityAt: new Date().toISOString(),
+      };
+      await this.saveSession(session);
+      await this.redis.setex(
+        `ai-match:user-session:${userId}`,
+        this.SESSION_TTL,
+        newSessionId,
+      );
+      return session;
+    }
+
     if (sessionId) {
       const existing = await this.getSession(sessionId);
-      if (existing) {
+      if (existing && !existing.userId) {
         await this.touchSession(sessionId);
         return existing;
       }
     }
 
-    const newSessionId = sessionId || randomUUID();
+    const newSessionId = randomUUID();
     const session: SessionState = {
       sessionId: newSessionId,
-      userId,
+      userId: null,
       threadId: null,
       messageQueue: [],
       conversationHistory: [],
@@ -41,6 +66,12 @@ export class SessionService implements OnModuleDestroy {
 
     await this.saveSession(session);
     return session;
+  }
+
+  async getSessionByUserId(userId: string): Promise<SessionState | null> {
+    const sessionId = await this.redis.get(`ai-match:user-session:${userId}`);
+    if (!sessionId) return null;
+    return this.getSession(sessionId);
   }
 
   async addMessageToHistory(
@@ -86,10 +117,24 @@ export class SessionService implements OnModuleDestroy {
       this.SESSION_TTL,
       JSON.stringify(session),
     );
+    // Keep user-session index in sync
+    if (session.userId) {
+      await this.redis.expire(
+        `ai-match:user-session:${session.userId}`,
+        this.SESSION_TTL,
+      );
+    }
   }
 
   async touchSession(sessionId: string): Promise<void> {
+    const session = await this.getSession(sessionId);
     await this.redis.expire(`ai-match:session:${sessionId}`, this.SESSION_TTL);
+    if (session?.userId) {
+      await this.redis.expire(
+        `ai-match:user-session:${session.userId}`,
+        this.SESSION_TTL,
+      );
+    }
   }
 
   async setThreadId(sessionId: string, threadId: string | null): Promise<void> {
@@ -105,7 +150,11 @@ export class SessionService implements OnModuleDestroy {
   }
 
   async deleteSession(sessionId: string): Promise<void> {
+    const session = await this.getSession(sessionId);
     await this.redis.del(`ai-match:session:${sessionId}`);
+    if (session?.userId) {
+      await this.redis.del(`ai-match:user-session:${session.userId}`);
+    }
   }
 
   async onModuleDestroy() {

@@ -8,15 +8,8 @@ import {
 } from './rate-limit.types.js';
 
 const RATE_LIMITS: Record<UserType, number> = {
-  guest: 3,
+  guest: 10,
   authenticated: 20,
-  recruiter: 30,
-};
-
-const MAX_RESULTS: Record<UserType, number> = {
-  guest: 5,
-  authenticated: 10,
-  recruiter: 20,
 };
 
 @Injectable()
@@ -92,10 +85,6 @@ export class RateLimitService implements OnModuleDestroy {
       limit,
       resetsAt: resetDate.toISOString(),
     };
-  }
-
-  getMaxResults(userType: UserType): number {
-    return MAX_RESULTS[userType];
   }
 
   async onModuleDestroy() {
