@@ -1,8 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis from 'ioredis';
-import { AIMatchEvent } from '../../../../../libs/shared/src/types/event.types.js';
+import { AIMatchEvent, AIMatchEventType } from '../../../../../libs/shared/src/types/event.types.js';
+import { SessionService } from '../session/session.service.js';
 
 @Injectable()
 export class PubSubService implements OnModuleInit, OnModuleDestroy {
@@ -10,7 +11,30 @@ export class PubSubService implements OnModuleInit, OnModuleDestroy {
   private pubsub: RedisPubSub;
   private redisSubscriber: Redis;
 
-  constructor(private configService: ConfigService) {
+  // Track matches per message for saving to history (includes full developer data)
+  private pendingMatches = new Map<string, Array<{
+    developerId: string;
+    matchScore: number;
+    matchReason: string;
+    developer?: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      jobTitle?: string;
+      bio?: string;
+      techStack: string[];
+      seniorityLevel?: string;
+      location?: string;
+      availabilityStatus?: string;
+      profilePhotoUrl?: string;
+    };
+  }>>();
+
+  constructor(
+    private configService: ConfigService,
+    @Inject(forwardRef(() => SessionService))
+    private sessionService: SessionService,
+  ) {
     const redisOptions = {
       host: this.configService.get('REDIS_HOST', 'localhost'),
       port: this.configService.get('REDIS_PORT', 6379),
@@ -34,6 +58,49 @@ export class PubSubService implements OnModuleInit, OnModuleDestroy {
         const event = JSON.parse(message) as AIMatchEvent;
         // Extract sessionId from channel (ai-agent-events:sessionId -> sessionId)
         const sessionId = channel.replace('ai-agent-events:', '');
+
+        // Track matches for this message (include full developer data)
+        if (event.type === AIMatchEventType.MATCH_FOUND && event.data?.match) {
+          const key = `${sessionId}:${event.messageId}`;
+          if (!this.pendingMatches.has(key)) {
+            this.pendingMatches.set(key, []);
+          }
+          const match = event.data.match;
+          const dev = match.developer;
+          this.pendingMatches.get(key)?.push({
+            developerId: match.developerId,
+            matchScore: match.matchScore,
+            matchReason: match.matchReason,
+            developer: dev ? {
+              id: dev.id,
+              firstName: dev.firstName,
+              lastName: dev.lastName,
+              jobTitle: dev.jobTitle,
+              bio: dev.bio,
+              techStack: dev.techStack || [],
+              seniorityLevel: dev.seniorityLevel,
+              location: dev.location,
+              availabilityStatus: dev.availabilityStatus,
+              profilePhotoUrl: dev.profilePhotoUrl,
+            } : undefined,
+          });
+        }
+
+        // Save assistant message to history on COMPLETE
+        if (event.type === AIMatchEventType.COMPLETE) {
+          const key = `${sessionId}:${event.messageId}`;
+          const matches = this.pendingMatches.get(key) || [];
+          this.pendingMatches.delete(key);
+
+          await this.sessionService.addMessageToHistory(sessionId, {
+            id: event.messageId,
+            role: 'assistant',
+            content: event.data?.summary || '',
+            timestamp: event.timestamp,
+            matches,
+          });
+        }
+
         // Relay to GraphQL subscriptions using the correct channel name
         await this.pubsub.publish(`ai-match:${sessionId}`, { aiMatchEvents: event });
         this.logger.debug(`Relayed ${event.type} event for session ${sessionId}`);

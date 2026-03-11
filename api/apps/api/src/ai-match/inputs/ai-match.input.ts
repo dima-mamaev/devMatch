@@ -2,6 +2,14 @@ import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 @InputType()
+export class AIMatchStartSessionInput {
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  sessionId?: string; // Optional session ID to resume existing session
+}
+
+@InputType()
 export class AIMatchSendInput {
   @Field()
   @IsNotEmpty()

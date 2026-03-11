@@ -2,12 +2,12 @@ import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
-import { SessionState } from './session.types.js';
+import { SessionState, ConversationMessage } from './session.types.js';
 
 @Injectable()
 export class SessionService implements OnModuleDestroy {
   private redis: Redis;
-  private readonly SESSION_TTL = 60 * 60 * 24; // 24 hours
+  private readonly SESSION_TTL = 60 * 60 * 2; // 2 hours
 
   constructor(private configService: ConfigService) {
     this.redis = new Redis({
@@ -35,12 +35,45 @@ export class SessionService implements OnModuleDestroy {
       userId,
       threadId: null,
       messageQueue: [],
+      conversationHistory: [],
       createdAt: new Date().toISOString(),
       lastActivityAt: new Date().toISOString(),
     };
 
     await this.saveSession(session);
     return session;
+  }
+
+  async addMessageToHistory(
+    sessionId: string,
+    message: ConversationMessage,
+  ): Promise<void> {
+    const session = await this.getSession(sessionId);
+    if (session) {
+      // Initialize if missing (for older sessions)
+      if (!session.conversationHistory) {
+        session.conversationHistory = [];
+      }
+      session.conversationHistory.push(message);
+      await this.saveSession(session);
+    }
+  }
+
+  async updateLastAssistantMessage(
+    sessionId: string,
+    messageId: string,
+    updates: Partial<ConversationMessage>,
+  ): Promise<void> {
+    const session = await this.getSession(sessionId);
+    if (session?.conversationHistory) {
+      const message = session.conversationHistory.find(
+        (m) => m.id === messageId,
+      );
+      if (message) {
+        Object.assign(message, updates);
+        await this.saveSession(session);
+      }
+    }
   }
 
   async getSession(sessionId: string): Promise<SessionState | null> {

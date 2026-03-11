@@ -81,9 +81,14 @@ input AIMatchSendInput {
 }
 
 type AIMatchSession {
+  conversationHistory: [ConversationMessage!]!
   maxResults: Int!
   sessionId: String!
   userType: String!
+}
+
+input AIMatchStartSessionInput {
+  sessionId: String
 }
 
 """Developer availability status"""
@@ -91,6 +96,34 @@ enum AvailabilityStatus {
   Available
   NotAvailable
   OpenToOffers
+}
+
+type ConversationMatchDeveloper {
+  availabilityStatus: String
+  bio: String
+  firstName: String!
+  id: String!
+  jobTitle: String
+  lastName: String!
+  location: String
+  profilePhotoUrl: String
+  seniorityLevel: String
+  techStack: [String!]!
+}
+
+type ConversationMatchInfo {
+  developer: ConversationMatchDeveloper
+  developerId: String!
+  matchReason: String!
+  matchScore: Float!
+}
+
+type ConversationMessage {
+  content: String!
+  id: String!
+  matches: [ConversationMatchInfo!]
+  role: String!
+  timestamp: String!
 }
 
 input CreateExperienceInput {
@@ -215,7 +248,7 @@ type Mutation {
   addToShortlist(developerId: ID!): Shortlist!
   aiMatchCancel(input: AIMatchCancelInput!): Boolean!
   aiMatchSendMessage(input: AIMatchSendInput!): Boolean!
-  aiMatchStartSession: AIMatchSession!
+  aiMatchStartSession(input: AIMatchStartSessionInput): AIMatchSession!
 
   """Clear entire shortlist"""
   clearMyShortlist: Boolean!

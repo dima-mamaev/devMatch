@@ -110,7 +110,7 @@ export default function AIMatchPage() {
           )}
           {hasMessages && (
             <button
-              onClick={clearMessages}
+              onClick={() => clearMessages(true)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
             >
               <RefreshIcon className="w-3.5 h-3.5" />
@@ -123,7 +123,15 @@ export default function AIMatchPage() {
       <div className="flex flex-col h-[calc(100vh-56px)]">
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto p-6">
-          {!hasMessages ? (
+          {isLoading ? (
+            // Loading state while session is being restored
+            <div className="flex items-center justify-center h-full">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+                <p className="text-sm text-slate-500">Loading conversation...</p>
+              </div>
+            </div>
+          ) : !hasMessages ? (
             // Empty state
             <div className="flex items-center justify-center h-full">
               <div className="max-w-lg w-full text-center">
@@ -185,13 +193,6 @@ export default function AIMatchPage() {
         {error && (
           <div className="mx-6 mb-2 px-4 py-2 bg-red-50 border border-red-200 rounded-xl">
             <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        {/* Loading state */}
-        {isLoading && !sessionId && (
-          <div className="mx-6 mb-2 px-4 py-2 bg-slate-50 rounded-xl">
-            <p className="text-sm text-slate-500">Starting session...</p>
           </div>
         )}
 

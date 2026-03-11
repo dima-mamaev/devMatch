@@ -110,6 +110,9 @@ interface RateLimitInfo {
   resetsAt: string;
 }
 
+// localStorage key for session persistence
+const AI_MATCH_SESSION_KEY = "ai-match-session-id";
+
 interface UseAIMatchReturn {
   // State
   sessionId: string | null;
@@ -126,7 +129,7 @@ interface UseAIMatchReturn {
   sendMessage: (prompt: string) => Promise<void>;
   cancelCurrent: () => Promise<void>;
   cancelAll: () => Promise<void>;
-  clearMessages: () => void;
+  clearMessages: (startFresh?: boolean) => void;
 }
 
 export function useAIMatch(): UseAIMatchReturn {
@@ -374,11 +377,76 @@ export function useAIMatch(): UseAIMatchReturn {
     try {
       setIsLoading(true);
       setError(null);
-      const { data } = await startSessionMutation();
+
+      // Try to restore existing session from localStorage
+      const storedSessionId = typeof window !== "undefined"
+        ? localStorage.getItem(AI_MATCH_SESSION_KEY)
+        : null;
+
+      const { data } = await startSessionMutation({
+        variables: {
+          input: storedSessionId ? { sessionId: storedSessionId } : null,
+        },
+      });
+
       if (data?.aiMatchStartSession) {
-        setSessionId(data.aiMatchStartSession.sessionId);
+        const newSessionId = data.aiMatchStartSession.sessionId;
+        setSessionId(newSessionId);
         setUserType(data.aiMatchStartSession.userType);
         setMaxResults(data.aiMatchStartSession.maxResults);
+
+        // Store sessionId in localStorage for persistence
+        if (typeof window !== "undefined") {
+          localStorage.setItem(AI_MATCH_SESSION_KEY, newSessionId);
+        }
+
+        // Load conversation history if available
+        const history = data.aiMatchStartSession.conversationHistory || [];
+        if (history.length > 0) {
+          const restoredMessages: ChatMessage[] = history.map((msg: {
+            id: string;
+            role: string;
+            content: string;
+            timestamp: string;
+            matches?: Array<{
+              developerId: string;
+              matchScore: number;
+              matchReason: string;
+              developer?: {
+                id: string;
+                firstName: string;
+                lastName: string;
+                jobTitle?: string;
+                bio?: string;
+                techStack: string[];
+                seniorityLevel?: string;
+                location?: string;
+                availabilityStatus?: string;
+                profilePhotoUrl?: string;
+              };
+            }>;
+          }) => ({
+            id: msg.id,
+            role: msg.role as "user" | "assistant",
+            content: msg.content,
+            timestamp: new Date(msg.timestamp),
+            matches: msg.matches?.map((m) => ({
+              developerId: m.developerId,
+              score: m.matchScore,
+              reasoning: m.matchReason,
+              // Include full developer data for consistent card rendering
+              firstName: m.developer?.firstName,
+              lastName: m.developer?.lastName,
+              jobTitle: m.developer?.jobTitle,
+              location: m.developer?.location,
+              techStack: m.developer?.techStack,
+              seniorityLevel: m.developer?.seniorityLevel,
+              availabilityStatus: m.developer?.availabilityStatus,
+              profilePhotoUrl: m.developer?.profilePhotoUrl,
+            })),
+          }));
+          setMessages(restoredMessages);
+        }
       }
     } catch (err) {
       console.error("[AIMatch] Failed to start session:", err);
@@ -476,10 +544,15 @@ export function useAIMatch(): UseAIMatchReturn {
     }
   }, [sessionId, cancelMutation]);
 
-  // Clear messages
-  const clearMessages = useCallback(() => {
+  // Clear messages and optionally start a fresh session
+  const clearMessages = useCallback((startFresh = false) => {
     setMessages([]);
     currentMessageIdRef.current = null;
+
+    if (startFresh && typeof window !== "undefined") {
+      localStorage.removeItem(AI_MATCH_SESSION_KEY);
+      setSessionId(null);
+    }
   }, []);
 
   // Auto-start session on mount

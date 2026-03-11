@@ -106,6 +106,72 @@ export class AIMatchRateLimitInfo {
 }
 
 @ObjectType()
+export class ConversationMatchDeveloper {
+  @Field(() => String)
+  id: string;
+
+  @Field(() => String)
+  firstName: string;
+
+  @Field(() => String)
+  lastName: string;
+
+  @Field(() => String, { nullable: true })
+  jobTitle?: string;
+
+  @Field(() => String, { nullable: true })
+  bio?: string;
+
+  @Field(() => [String])
+  techStack: string[];
+
+  @Field(() => String, { nullable: true })
+  seniorityLevel?: string;
+
+  @Field(() => String, { nullable: true })
+  location?: string;
+
+  @Field(() => String, { nullable: true })
+  availabilityStatus?: string;
+
+  @Field(() => String, { nullable: true })
+  profilePhotoUrl?: string;
+}
+
+@ObjectType()
+export class ConversationMatchInfo {
+  @Field(() => String)
+  developerId: string;
+
+  @Field(() => Float)
+  matchScore: number;
+
+  @Field(() => String)
+  matchReason: string;
+
+  @Field(() => ConversationMatchDeveloper, { nullable: true })
+  developer?: ConversationMatchDeveloper;
+}
+
+@ObjectType()
+export class ConversationMessage {
+  @Field(() => String)
+  id: string;
+
+  @Field(() => String)
+  role: string; // 'user' | 'assistant'
+
+  @Field(() => String)
+  content: string;
+
+  @Field(() => String)
+  timestamp: string;
+
+  @Field(() => [ConversationMatchInfo], { nullable: true })
+  matches?: ConversationMatchInfo[];
+}
+
+@ObjectType()
 export class AIMatchSession {
   @Field(() => String)
   sessionId: string;
@@ -115,6 +181,9 @@ export class AIMatchSession {
 
   @Field(() => Int)
   maxResults: number;
+
+  @Field(() => [ConversationMessage])
+  conversationHistory: ConversationMessage[];
 }
 
 @ObjectType()

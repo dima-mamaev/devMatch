@@ -12,7 +12,7 @@ import { RateLimitService } from './rate-limit/rate-limit.service.js';
 import { SessionService } from './session/session.service.js';
 import { MessageQueueService } from './queue/message-queue.service.js';
 import { PubSubService } from './streaming/pubsub.service.js';
-import { AIMatchSendInput, AIMatchCancelInput } from './inputs/ai-match.input.js';
+import { AIMatchStartSessionInput, AIMatchSendInput, AIMatchCancelInput } from './inputs/ai-match.input.js';
 import {
   AIMatchEvent,
   AIMatchRateLimitInfo,
@@ -40,18 +40,21 @@ export class AIMatchResolver {
   @SkipSystemGuard()
   @Mutation(() => AIMatchSession)
   async aiMatchStartSession(
+    @Args('input', { type: () => AIMatchStartSessionInput, nullable: true }) input: AIMatchStartSessionInput | null,
     @ActiveUser() user: User | null,
     @Context() ctx: { req?: { ip?: string; headers?: Record<string, string> } },
   ): Promise<AIMatchSession> {
     const { userType } = this.getUserInfo(user, ctx);
     const userId = user?.id || null;
 
-    const session = await this.sessionService.getOrCreateSession(null, userId);
+    // Pass the sessionId from input to resume existing session
+    const session = await this.sessionService.getOrCreateSession(input?.sessionId || null, userId);
 
     return {
       sessionId: session.sessionId,
       userType,
       maxResults: this.rateLimitService.getMaxResults(userType),
+      conversationHistory: session.conversationHistory || [],
     };
   }
 
@@ -81,6 +84,14 @@ export class AIMatchResolver {
     if (userType === 'guest') {
       await this.sessionService.setThreadId(input.sessionId, null);
     }
+
+    // Save user message to conversation history
+    await this.sessionService.addMessageToHistory(input.sessionId, {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: input.prompt,
+      timestamp: new Date().toISOString(),
+    });
 
     // Enqueue the message
     await this.messageQueueService.enqueueMessage(input.sessionId, input.prompt);

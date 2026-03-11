@@ -446,11 +446,34 @@ export const CLEAR_MY_SHORTLIST = gql`
 // ==================== AI MATCH MUTATIONS ====================
 
 export const AI_MATCH_START_SESSION = gql`
-  mutation AIMatchStartSession {
-    aiMatchStartSession {
+  mutation AIMatchStartSession($input: AIMatchStartSessionInput) {
+    aiMatchStartSession(input: $input) {
       sessionId
       userType
       maxResults
+      conversationHistory {
+        id
+        role
+        content
+        timestamp
+        matches {
+          developerId
+          matchScore
+          matchReason
+          developer {
+            id
+            firstName
+            lastName
+            jobTitle
+            bio
+            techStack
+            seniorityLevel
+            location
+            availabilityStatus
+            profilePhotoUrl
+          }
+        }
+      }
     }
   }
 `;
