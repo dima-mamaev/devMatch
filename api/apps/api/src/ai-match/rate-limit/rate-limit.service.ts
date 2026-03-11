@@ -10,7 +10,7 @@ import {
 const RATE_LIMITS: Record<UserType, number> = {
   guest: 3,
   authenticated: 20,
-  recruiter: 1000, // Effectively unlimited
+  recruiter: 30,
 };
 
 const MAX_RESULTS: Record<UserType, number> = {
@@ -37,11 +37,9 @@ export class RateLimitService implements OnModuleDestroy {
     const key = `ai-match:rate-limit:${userType}:${identifier}`;
     const limit = RATE_LIMITS[userType];
 
-    // Get current count
     const currentStr = await this.redis.get(key);
     const current = currentStr ? parseInt(currentStr, 10) : 0;
 
-    // Calculate reset time (midnight UTC)
     const now = new Date();
     const resetDate = new Date(now);
     resetDate.setUTCDate(resetDate.getUTCDate() + 1);
@@ -59,9 +57,7 @@ export class RateLimitService implements OnModuleDestroy {
       };
     }
 
-    // Increment counter
     await this.redis.incr(key);
-    // Set expiry if this is the first request
     if (current === 0) {
       await this.redis.expire(key, ttl);
     }
@@ -86,7 +82,6 @@ export class RateLimitService implements OnModuleDestroy {
     const currentStr = await this.redis.get(key);
     const current = currentStr ? parseInt(currentStr, 10) : 0;
 
-    // Calculate reset time (midnight UTC)
     const now = new Date();
     const resetDate = new Date(now);
     resetDate.setUTCDate(resetDate.getUTCDate() + 1);

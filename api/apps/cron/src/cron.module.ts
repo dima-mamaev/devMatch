@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThreadCleanupJob } from './jobs/thread-cleanup.job.js';
 import { SessionExpiryJob } from './jobs/session-expiry.job.js';
-import { HealthCheckJob } from './jobs/health-check.job.js';
 import { OpenAICleanupService } from './services/openai-cleanup.service.js';
 import { RedisCleanupService } from './services/redis-cleanup.service.js';
 
@@ -12,7 +11,6 @@ import { RedisCleanupService } from './services/redis-cleanup.service.js';
   providers: [
     ThreadCleanupJob,
     SessionExpiryJob,
-    HealthCheckJob,
     OpenAICleanupService,
     RedisCleanupService,
   ],

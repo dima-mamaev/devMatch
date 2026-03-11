@@ -10,8 +10,6 @@ export class PubSubService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PubSubService.name);
   private pubsub: RedisPubSub;
   private redisSubscriber: Redis;
-
-  // Track matches per message for saving to history (includes full developer data)
   private pendingMatches = new Map<string, Array<{
     developerId: string;
     matchScore: number;
@@ -45,21 +43,17 @@ export class PubSubService implements OnModuleInit, OnModuleDestroy {
       subscriber: new Redis(redisOptions),
     });
 
-    // Separate Redis subscriber to bridge AI Agent events
     this.redisSubscriber = new Redis(redisOptions);
   }
 
   async onModuleInit() {
-    // Listen for AI Agent events via pattern subscription (distinct channel prefix)
     await this.redisSubscriber.psubscribe('ai-agent-events:*');
 
     this.redisSubscriber.on('pmessage', async (_pattern, channel, message) => {
       try {
         const event = JSON.parse(message) as AIMatchEvent;
-        // Extract sessionId from channel (ai-agent-events:sessionId -> sessionId)
         const sessionId = channel.replace('ai-agent-events:', '');
 
-        // Track matches for this message (include full developer data)
         if (event.type === AIMatchEventType.MATCH_FOUND && event.data?.match) {
           const key = `${sessionId}:${event.messageId}`;
           if (!this.pendingMatches.has(key)) {
@@ -86,7 +80,6 @@ export class PubSubService implements OnModuleInit, OnModuleDestroy {
           });
         }
 
-        // Save assistant message to history on COMPLETE
         if (event.type === AIMatchEventType.COMPLETE) {
           const key = `${sessionId}:${event.messageId}`;
           const matches = this.pendingMatches.get(key) || [];
@@ -101,7 +94,6 @@ export class PubSubService implements OnModuleInit, OnModuleDestroy {
           });
         }
 
-        // Relay to GraphQL subscriptions using the correct channel name
         await this.pubsub.publish(`ai-match:${sessionId}`, { aiMatchEvents: event });
         this.logger.debug(`Relayed ${event.type} event for session ${sessionId}`);
       } catch (error) {
@@ -113,7 +105,6 @@ export class PubSubService implements OnModuleInit, OnModuleDestroy {
   }
 
   async publish(sessionId: string, event: AIMatchEvent): Promise<void> {
-    // Publish directly to GraphQL PubSub (no Redis, avoids duplicate)
     await this.pubsub.publish(`ai-match:${sessionId}`, { aiMatchEvents: event });
   }
 

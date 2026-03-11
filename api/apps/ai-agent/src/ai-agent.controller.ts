@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Logger } from '@nestjs/common';
 import { OpenAIAgentService } from './openai/openai-agent.service.js';
 import { EventPublisherService } from './events/event-publisher.service.js';
 
@@ -24,19 +24,16 @@ export class AIAgentController {
   constructor(
     private readonly openaiService: OpenAIAgentService,
     private readonly eventPublisher: EventPublisherService,
-  ) {}
+  ) { }
 
   @Post('api/match')
   async runMatchingAgent(@Body() request: MatchingRequest) {
     this.logger.log(`Starting match for session: ${request.sessionId}`);
 
-    // Get or create thread synchronously so we can return threadId
     const threadId = await this.openaiService.getOrCreateThread(
       request.threadId,
     );
 
-    // Fire and forget - process async, events published via Redis
-    // Don't await - return immediately to caller
     this.openaiService
       .runMatchingAgentStreaming(
         request.sessionId,
@@ -48,7 +45,6 @@ export class AIAgentController {
       )
       .catch((error) => {
         this.logger.error(`Match processing failed: ${error.message}`);
-        // Publish error event so frontend knows
         this.eventPublisher.publishError(
           request.sessionId,
           request.messageId,
@@ -76,8 +72,4 @@ export class AIAgentController {
     };
   }
 
-  @Get('health')
-  async healthCheck() {
-    return this.openaiService.healthCheck();
-  }
 }

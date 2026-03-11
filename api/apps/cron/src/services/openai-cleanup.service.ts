@@ -23,7 +23,6 @@ export class OpenAICleanupService implements OnModuleDestroy {
     let deleted = 0;
 
     try {
-      // Get all tracked thread IDs from Redis
       const threadKeys = await this.redis.keys('ai-match:thread:*');
 
       for (const key of threadKeys) {
@@ -32,13 +31,11 @@ export class OpenAICleanupService implements OnModuleDestroy {
 
         const { threadId, createdAt } = JSON.parse(threadData);
         const age = Date.now() - new Date(createdAt).getTime();
-        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+        const maxAge = 24 * 60 * 60 * 1000;
 
         if (age > maxAge) {
           try {
-            // Delete thread from OpenAI
             await this.openai.beta.threads.delete(threadId);
-            // Remove from Redis tracking
             await this.redis.del(key);
             deleted++;
             this.logger.debug(`Deleted orphaned thread: ${threadId}`);
@@ -63,7 +60,7 @@ export class OpenAICleanupService implements OnModuleDestroy {
         createdAt: new Date().toISOString(),
       }),
       'EX',
-      86400, // 24 hours TTL
+      86400,
     );
   }
 

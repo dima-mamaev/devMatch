@@ -7,7 +7,7 @@ import { SessionState, ConversationMessage } from './session.types.js';
 @Injectable()
 export class SessionService implements OnModuleDestroy {
   private redis: Redis;
-  private readonly SESSION_TTL = 60 * 60 * 2; // 2 hours
+  private readonly SESSION_TTL = 60 * 60 * 2;
 
   constructor(private configService: ConfigService) {
     this.redis = new Redis({
@@ -28,7 +28,6 @@ export class SessionService implements OnModuleDestroy {
       }
     }
 
-    // Create new session
     const newSessionId = sessionId || randomUUID();
     const session: SessionState = {
       sessionId: newSessionId,
@@ -50,7 +49,6 @@ export class SessionService implements OnModuleDestroy {
   ): Promise<void> {
     const session = await this.getSession(sessionId);
     if (session) {
-      // Initialize if missing (for older sessions)
       if (!session.conversationHistory) {
         session.conversationHistory = [];
       }
@@ -102,9 +100,6 @@ export class SessionService implements OnModuleDestroy {
     }
   }
 
-  /**
-   * Get current run ID from Redis (stored by AI Agent service)
-   */
   async getCurrentRunId(sessionId: string): Promise<string | null> {
     return this.redis.get(`ai-match:run:${sessionId}`);
   }

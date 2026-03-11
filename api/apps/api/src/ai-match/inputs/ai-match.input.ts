@@ -6,7 +6,7 @@ export class AIMatchStartSessionInput {
   @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
-  sessionId?: string; // Optional session ID to resume existing session
+  sessionId?: string;
 }
 
 @InputType()
@@ -14,16 +14,16 @@ export class AIMatchSendInput {
   @Field()
   @IsNotEmpty()
   @IsString()
-  sessionId: string; // Session ID from aiMatchStartSession
+  sessionId: string;
 
   @Field()
   @IsNotEmpty()
   @IsString()
-  prompt: string; // Natural language search query
+  prompt: string;
 
   @Field(() => [String], { nullable: true })
   @IsOptional()
-  excludeDeveloperIds?: string[]; // Exclude already reviewed developers
+  excludeDeveloperIds?: string[];
 }
 
 @InputType()
@@ -36,9 +36,9 @@ export class AIMatchCancelInput {
   @Field()
   @IsNotEmpty()
   @IsString()
-  target: string; // 'current' | 'queued' | 'all'
+  target: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  messageId?: string; // Required when target is 'queued'
+  messageId?: string;
 }

@@ -18,7 +18,6 @@ export class RedisCleanupService implements OnModuleDestroy {
     let expired = 0;
 
     try {
-      // Get all session keys
       const sessionKeys = await this.redis.keys('ai-match:session:*');
 
       for (const key of sessionKeys) {
@@ -29,7 +28,7 @@ export class RedisCleanupService implements OnModuleDestroy {
           const session = JSON.parse(sessionData);
           const lastActivity = new Date(session.lastActivity || session.createdAt);
           const age = Date.now() - lastActivity.getTime();
-          const maxAge = 2 * 60 * 60 * 1000; // 2 hours
+          const maxAge = 2 * 60 * 60 * 1000;
 
           if (age > maxAge) {
             await this.redis.del(key);
@@ -37,17 +36,14 @@ export class RedisCleanupService implements OnModuleDestroy {
             this.logger.debug(`Expired stale session: ${key}`);
           }
         } catch {
-          // Invalid session data, remove it
           await this.redis.del(key);
           expired++;
         }
       }
 
-      // Also clean up stale rate limit keys older than 24 hours
       const rateLimitKeys = await this.redis.keys('ai-match:rate-limit:*');
       for (const key of rateLimitKeys) {
         const ttl = await this.redis.ttl(key);
-        // If no TTL is set (ttl === -1), delete the key
         if (ttl === -1) {
           await this.redis.del(key);
           this.logger.debug(`Cleaned up rate limit key without TTL: ${key}`);
@@ -65,7 +61,6 @@ export class RedisCleanupService implements OnModuleDestroy {
     let cleaned = 0;
 
     try {
-      // Clean up stale message queue keys
       const queueKeys = await this.redis.keys('ai-match:queue:*');
 
       for (const key of queueKeys) {
@@ -76,7 +71,7 @@ export class RedisCleanupService implements OnModuleDestroy {
           const queue = JSON.parse(queueData);
           const lastUpdate = new Date(queue.updatedAt || queue.createdAt);
           const age = Date.now() - lastUpdate.getTime();
-          const maxAge = 1 * 60 * 60 * 1000; // 1 hour
+          const maxAge = 1 * 60 * 60 * 1000;
 
           if (age > maxAge) {
             await this.redis.del(key);

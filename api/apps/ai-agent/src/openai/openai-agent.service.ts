@@ -34,7 +34,6 @@ export class OpenAIAgentService implements OnModuleInit {
       return;
     }
     await this.initializeAssistant();
-    await this.healthCheck();
   }
 
   private async initializeAssistant() {
@@ -69,24 +68,6 @@ export class OpenAIAgentService implements OnModuleInit {
       throw new Error(
         'OpenAI assistant initialization failed. Check OPENAI_API_KEY and permissions.',
       );
-    }
-  }
-
-  async healthCheck(): Promise<{ healthy: boolean; openaiStatus: string }> {
-    if (!this.assistantId) {
-      return { healthy: false, openaiStatus: 'not_configured' };
-    }
-    try {
-      const assistant = await this.openai.beta.assistants.retrieve(
-        this.assistantId,
-      );
-      this.logger.log(
-        `OpenAI health check passed. Assistant: ${assistant.name}`,
-      );
-      return { healthy: true, openaiStatus: 'connected' };
-    } catch (error) {
-      this.logger.error('OpenAI health check failed:', error);
-      return { healthy: false, openaiStatus: 'disconnected' };
     }
   }
 

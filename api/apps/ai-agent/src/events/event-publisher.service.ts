@@ -19,12 +19,10 @@ export class EventPublisherService implements OnModuleDestroy {
   }
 
   async publish(sessionId: string, event: AIMatchEvent): Promise<void> {
-    // Use distinct channel prefix to avoid collision with main API's RedisPubSub
     await this.redis.publish(`ai-agent-events:${sessionId}`, JSON.stringify(event));
   }
 
   async publishRunStarted(sessionId: string, runId: string): Promise<void> {
-    // Store run ID for cancellation lookup (expires in 1 hour)
     await this.redis.set(`ai-match:run:${sessionId}`, runId, 'EX', 3600);
   }
 

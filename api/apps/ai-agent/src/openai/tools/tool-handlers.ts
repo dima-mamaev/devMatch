@@ -7,7 +7,6 @@ import type {
   DeveloperProfile,
 } from '../../../../../libs/shared/src/types/agent.types.js';
 
-// Role to search criteria mapping
 const ROLE_MAPPINGS: Record<string, { techKeywords: string[]; jobTitleKeywords: string[] }> = {
   devops: {
     techKeywords: ['aws', 'gcp', 'azure', 'docker', 'kubernetes', 'k8s', 'terraform', 'ansible', 'jenkins', 'ci/cd', 'linux', 'prometheus', 'grafana'],
@@ -50,15 +49,14 @@ interface RoleSearchParams {
 
 @Injectable()
 export class ToolHandlers {
-  // Cache for tech stack (refreshed every 5 minutes)
   private techStackCache: string[] | null = null;
   private techStackCacheTime: number = 0;
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly CACHE_TTL = 5 * 60 * 1000;
 
   constructor(
     @InjectRepository(Developer)
     private developerRepository: Repository<Developer>,
-  ) {}
+  ) { }
 
   async execute(toolName: string, args: Record<string, any>): Promise<unknown> {
     switch (toolName) {
@@ -77,26 +75,20 @@ export class ToolHandlers {
     }
   }
 
-  /**
-   * Search developers by role - combines tech stack and job title search
-   */
   private async searchByRole(params: RoleSearchParams): Promise<DeveloperProfile[]> {
     const roleConfig = ROLE_MAPPINGS[params.role.toLowerCase()];
     if (!roleConfig) {
       throw new Error(`Unknown role: ${params.role}. Valid roles: ${Object.keys(ROLE_MAPPINGS).join(', ')}`);
     }
 
-    // Get available tech stack to match against
     const availableTech = await this.getAvailableTechStack();
 
-    // Find matching technologies (case-insensitive partial match)
     const matchingTech = availableTech.filter((tech) =>
       roleConfig.techKeywords.some((keyword) =>
         tech.toLowerCase().includes(keyword.toLowerCase()),
       ),
     );
 
-    // Build query with OR logic: matches tech stack OR has matching job title
     const query = this.developerRepository
       .createQueryBuilder('developer')
       .leftJoinAndSelect('developer.experiences', 'experiences')
@@ -105,17 +97,14 @@ export class ToolHandlers {
       .addSelect('media.url', 'profilePhotoUrl')
       .where('developer.onboardingCompleted = :completed', { completed: true });
 
-    // Build OR conditions for tech stack and job title
     const orConditions: string[] = [];
     const orParams: Record<string, unknown> = {};
 
-    // Tech stack condition
     if (matchingTech.length > 0) {
       orConditions.push('developer.techStack && :techStack');
       orParams.techStack = matchingTech;
     }
 
-    // Job title conditions (search in jobTitle, bio, and experience positions)
     roleConfig.jobTitleKeywords.forEach((keyword, index) => {
       orConditions.push(`developer.jobTitle ILIKE :title${index}`);
       orConditions.push(`developer.bio ILIKE :title${index}`);
@@ -126,7 +115,6 @@ export class ToolHandlers {
       query.andWhere(`(${orConditions.join(' OR ')})`, orParams);
     }
 
-    // Apply additional filters
     if (params.seniorityLevels?.length) {
       query.andWhere('developer.seniorityLevel IN (:...levels)', {
         levels: params.seniorityLevels,
@@ -218,7 +206,6 @@ export class ToolHandlers {
   private async getDeveloperDetails(
     developerId: string,
   ): Promise<DeveloperProfile | null> {
-    // Use raw query to join media table for profilePhotoUrl
     const result = await this.developerRepository
       .createQueryBuilder('developer')
       .leftJoinAndSelect('developer.experiences', 'experiences')
@@ -237,20 +224,17 @@ export class ToolHandlers {
   }
 
   private async getAvailableTechStack(): Promise<string[]> {
-    // Return cached result if valid
     const now = Date.now();
     if (this.techStackCache && now - this.techStackCacheTime < this.CACHE_TTL) {
       return this.techStackCache;
     }
 
-    // Fetch from database
     const result = await this.developerRepository
       .createQueryBuilder('developer')
       .select('DISTINCT unnest(developer.techStack)', 'tech')
       .orderBy('tech', 'ASC')
       .getRawMany();
 
-    // Update cache
     this.techStackCache = result.map((r: { tech: string }) => r.tech);
     this.techStackCacheTime = now;
 

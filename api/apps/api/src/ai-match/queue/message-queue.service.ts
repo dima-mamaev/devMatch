@@ -10,7 +10,7 @@ export class MessageQueueService {
   constructor(
     private sessionService: SessionService,
     private pubsubService: PubSubService,
-  ) {}
+  ) { }
 
   async enqueueMessage(
     sessionId: string,
@@ -28,11 +28,9 @@ export class MessageQueueService {
       queuedAt: new Date().toISOString(),
     };
 
-    // Add to queue
     session.messageQueue.push(message);
     await this.sessionService.saveSession(session);
 
-    // Emit queued event
     await this.pubsubService.publish(
       sessionId,
       createEvent(AIMatchEventType.MESSAGE_QUEUED, sessionId, message.messageId, {
@@ -48,7 +46,6 @@ export class MessageQueueService {
     const session = await this.sessionService.getSession(sessionId);
     if (!session) return null;
 
-    // Find first queued message
     return session.messageQueue.find((m) => m.status === 'queued') || null;
   }
 

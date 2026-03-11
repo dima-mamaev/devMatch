@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { AIMatchService } from './ai-match.service.js';
-import { AIMatchResolver } from './ai-match.resolver.js';
+import { AIMatchMutationResolver } from './ai-match.mutation.resolver.js';
+import { AIMatchQueryResolver } from './ai-match.query.resolver.js';
 import { AIAgentClient } from './http/ai-agent.client.js';
 import { RateLimitService } from './rate-limit/rate-limit.service.js';
 import { PubSubService } from './streaming/pubsub.service.js';
@@ -19,7 +20,8 @@ import { MessageQueueService } from './queue/message-queue.service.js';
   ],
   providers: [
     AIMatchService,
-    AIMatchResolver,
+    AIMatchMutationResolver,
+    AIMatchQueryResolver,
     AIAgentClient,
     RateLimitService,
     PubSubService,

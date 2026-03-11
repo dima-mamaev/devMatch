@@ -66,10 +66,10 @@ export class AIMatchResult {
   developerId: string;
 
   @Field(() => Float)
-  matchScore: number; // 0-100
+  matchScore: number;
 
   @Field(() => String)
-  matchReason: string; // AI-generated explanation
+  matchReason: string;
 
   @Field(() => AIMatchDeveloper, { nullable: true })
   developer?: AIMatchDeveloper;
@@ -81,28 +81,28 @@ export class AIMatchResponse {
   matches: AIMatchResult[];
 
   @Field(() => String)
-  searchSummary: string; // AI summary of search criteria
+  searchSummary: string;
 
   @Field(() => Int)
   totalCandidates: number;
 
   @Field(() => String, { nullable: true })
-  threadId?: string; // OpenAI thread ID for conversation continuity
+  threadId?: string;
 
   @Field(() => Boolean, { defaultValue: false })
-  isOffTopic: boolean; // True if prompt was not related to developer search
+  isOffTopic: boolean;
 }
 
 @ObjectType()
 export class AIMatchRateLimitInfo {
   @Field(() => Int)
-  remaining: number; // Searches remaining today
+  remaining: number;
 
   @Field(() => Int)
-  limit: number; // Total daily limit
+  limit: number;
 
   @Field(() => String)
-  resetsAt: string; // ISO timestamp when limit resets
+  resetsAt: string;
 }
 
 @ObjectType()
@@ -159,7 +159,7 @@ export class ConversationMessage {
   id: string;
 
   @Field(() => String)
-  role: string; // 'user' | 'assistant'
+  role: string;
 
   @Field(() => String)
   content: string;
@@ -177,7 +177,7 @@ export class AIMatchSession {
   sessionId: string;
 
   @Field(() => String)
-  userType: string; // 'guest' | 'authenticated' | 'recruiter'
+  userType: string;
 
   @Field(() => Int)
   maxResults: number;
@@ -195,7 +195,7 @@ export class QueuedMessageInfo {
   prompt: string;
 
   @Field(() => String)
-  status: string; // 'queued' | 'processing' | 'completed' | 'failed' | 'cancelled'
+  status: string;
 
   @Field(() => String)
   queuedAt: string;
@@ -210,7 +210,6 @@ export class AIMatchQueueStatus {
   queued: QueuedMessageInfo[];
 }
 
-// Event type for subscriptions
 @ObjectType()
 export class AIMatchEventData {
   @Field(() => String, { nullable: true })
@@ -250,7 +249,7 @@ export class AIMatchEventData {
 @ObjectType()
 export class AIMatchEvent {
   @Field(() => String)
-  type: string; // AIMatchEventType
+  type: string;
 
   @Field(() => String)
   sessionId: string;
