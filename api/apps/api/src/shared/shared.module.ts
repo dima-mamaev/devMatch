@@ -12,6 +12,7 @@ import { TransactionService } from './services/transaction.service';
 import { DeveloperModule } from '../developer/developer.module';
 import { RecruiterModule } from '../recruiter/recruiter.module';
 import { ShortlistModule } from '../shortlist/shortlist.module';
+import { AIMatchModule } from '../ai-match/ai-match.module';
 
 const modules = [
   UserModule,
@@ -21,6 +22,7 @@ const modules = [
   DeveloperModule,
   RecruiterModule,
   ShortlistModule,
+  AIMatchModule,
 ];
 
 const services = [Auth0Service, CloudinaryService, TransactionService];

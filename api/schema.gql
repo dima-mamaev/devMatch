@@ -2,6 +2,90 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AIMatchCancelInput {
+  messageId: String
+  sessionId: String!
+  target: String!
+}
+
+type AIMatchDeveloper {
+  availabilityStatus: String
+  bio: String
+  experiences: [AIMatchDeveloperExperience!]!
+  firstName: String!
+  id: String!
+  jobTitle: String
+  lastName: String!
+  location: String
+  profilePhotoUrl: String
+  projects: [AIMatchDeveloperProject!]!
+  seniorityLevel: String
+  techStack: [String!]!
+}
+
+type AIMatchDeveloperExperience {
+  companyName: String!
+  position: String!
+  yearsWorked: Int!
+}
+
+type AIMatchDeveloperProject {
+  name: String!
+  techStack: [String!]!
+}
+
+type AIMatchEvent {
+  data: AIMatchEventData
+  messageId: String!
+  sessionId: String!
+  timestamp: String!
+  type: String!
+}
+
+type AIMatchEventData {
+  candidateCount: Int
+  errorMessage: String
+  isOffTopic: Boolean
+  match: AIMatchResult
+  message: String
+  position: Int
+  resultSummary: String
+  summary: String
+  toolName: String
+  totalCandidates: Int
+  totalMatches: Int
+}
+
+type AIMatchQueueStatus {
+  processing: QueuedMessageInfo
+  queued: [QueuedMessageInfo!]!
+}
+
+type AIMatchRateLimitInfo {
+  limit: Int!
+  remaining: Int!
+  resetsAt: String!
+}
+
+type AIMatchResult {
+  developer: AIMatchDeveloper
+  developerId: String!
+  matchReason: String!
+  matchScore: Float!
+}
+
+input AIMatchSendInput {
+  excludeDeveloperIds: [String!]
+  prompt: String!
+  sessionId: String!
+}
+
+type AIMatchSession {
+  maxResults: Int!
+  sessionId: String!
+  userType: String!
+}
+
 """Developer availability status"""
 enum AvailabilityStatus {
   Available
@@ -129,6 +213,9 @@ type Mutation {
 
   """Add developer to shortlist"""
   addToShortlist(developerId: ID!): Shortlist!
+  aiMatchCancel(input: AIMatchCancelInput!): Boolean!
+  aiMatchSendMessage(input: AIMatchSendInput!): Boolean!
+  aiMatchStartSession: AIMatchSession!
 
   """Clear entire shortlist"""
   clearMyShortlist: Boolean!
@@ -191,6 +278,9 @@ type Project {
 }
 
 type Query {
+  aiMatchQueueStatus(sessionId: String!): AIMatchQueueStatus!
+  aiMatchRateLimitInfo: AIMatchRateLimitInfo!
+
   """Get a single developer by ID"""
   getDeveloper(id: ID!): Developer
 
@@ -212,6 +302,13 @@ type Query {
   """Check if developer is in shortlist"""
   isInMyShortlist(developerId: ID!): Boolean!
   user: UserQuery!
+}
+
+type QueuedMessageInfo {
+  messageId: String!
+  prompt: String!
+  queuedAt: String!
+  status: String!
 }
 
 """Recruiter"""
@@ -252,6 +349,10 @@ type Shortlist {
 enum Sort {
   ASC
   DESC
+}
+
+type Subscription {
+  aiMatchEvents(sessionId: String!): AIMatchEvent!
 }
 
 input UpdateDeveloperInput {

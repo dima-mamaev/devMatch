@@ -19,6 +19,7 @@
     "@types/apollo-upload-client": "^17.0.5",
     "apollo-upload-client": "^17.0.0",
     "graphql": "^16.13.1",
+    "graphql-ws": "^6.0.7",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",

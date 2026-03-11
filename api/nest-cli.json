@@ -27,6 +27,33 @@
       "compilerOptions": {
         "tsConfigPath": "apps/video-converter/tsconfig.app.json"
       }
+    },
+    "ai-agent": {
+      "type": "application",
+      "root": "apps/ai-agent",
+      "entryFile": "main",
+      "sourceRoot": "apps/ai-agent/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ai-agent/tsconfig.app.json"
+      }
+    },
+    "cron": {
+      "type": "application",
+      "root": "apps/cron",
+      "entryFile": "main",
+      "sourceRoot": "apps/cron/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cron/tsconfig.app.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+      }
     }
   }
 }

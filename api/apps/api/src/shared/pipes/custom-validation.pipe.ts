@@ -8,12 +8,33 @@ import { plainToInstance } from 'class-transformer';
 import { GenerateGroupInterface } from '../../../../../types/types';
 
 export class CustomValidationPipe implements PipeTransform {
+  // Native types that shouldn't be transformed by class-transformer
+  private readonly skipTypes = [
+    String,
+    Boolean,
+    Number,
+    Array,
+    Object,
+    Promise,
+  ];
+
   constructor(private readonly options?: ValidationPipeOptions) {}
+
+  private shouldSkipTransform(metatype: unknown): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const type = metatype as any;
+    return (
+      this.skipTypes.includes(type) ||
+      type.name === 'Promise' ||
+      type.name === 'Object'
+    );
+  }
 
   transform(value: unknown, metadata: ArgumentMetadata): unknown {
     const { metatype } = metadata;
 
-    if (!metatype || metatype === Promise || metatype.name === 'Promise') {
+    // Skip validation for types that shouldn't be transformed
+    if (!metatype || this.shouldSkipTransform(metatype)) {
       return value;
     }
 

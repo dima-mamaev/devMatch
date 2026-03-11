@@ -442,3 +442,108 @@ export const CLEAR_MY_SHORTLIST = gql`
     clearMyShortlist
   }
 `;
+
+// ==================== AI MATCH MUTATIONS ====================
+
+export const AI_MATCH_START_SESSION = gql`
+  mutation AIMatchStartSession {
+    aiMatchStartSession {
+      sessionId
+      userType
+      maxResults
+    }
+  }
+`;
+
+export const AI_MATCH_SEND_MESSAGE = gql`
+  mutation AIMatchSendMessage($input: AIMatchSendInput!) {
+    aiMatchSendMessage(input: $input)
+  }
+`;
+
+export const AI_MATCH_CANCEL = gql`
+  mutation AIMatchCancel($input: AIMatchCancelInput!) {
+    aiMatchCancel(input: $input)
+  }
+`;
+
+// ==================== AI MATCH QUERIES ====================
+
+export const AI_MATCH_RATE_LIMIT_INFO = gql`
+  query AIMatchRateLimitInfo {
+    aiMatchRateLimitInfo {
+      remaining
+      limit
+      resetsAt
+    }
+  }
+`;
+
+export const AI_MATCH_QUEUE_STATUS = gql`
+  query AIMatchQueueStatus($sessionId: String!) {
+    aiMatchQueueStatus(sessionId: $sessionId) {
+      processing {
+        messageId
+        prompt
+        startedAt
+      }
+      queued {
+        messageId
+        prompt
+        position
+        queuedAt
+      }
+    }
+  }
+`;
+
+// ==================== AI MATCH SUBSCRIPTIONS ====================
+
+export const AI_MATCH_EVENTS = gql`
+  subscription AIMatchEvents($sessionId: String!) {
+    aiMatchEvents(sessionId: $sessionId) {
+      type
+      sessionId
+      messageId
+      timestamp
+      data {
+        message
+        toolName
+        resultSummary
+        candidateCount
+        match {
+          developerId
+          matchScore
+          matchReason
+          developer {
+            id
+            firstName
+            lastName
+            jobTitle
+            bio
+            techStack
+            seniorityLevel
+            location
+            availabilityStatus
+            profilePhotoUrl
+            experiences {
+              companyName
+              position
+              yearsWorked
+            }
+            projects {
+              name
+              techStack
+            }
+          }
+        }
+        summary
+        totalMatches
+        totalCandidates
+        position
+        errorMessage
+        isOffTopic
+      }
+    }
+  }
+`;
