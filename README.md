@@ -6,8 +6,8 @@ A microservices-based backend for a developer hiring platform. Built with NestJS
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                                  CLIENTS                                     │
-│                         (Web App, Mobile, etc.)                              │
+│                                  CLIENTS                                    │
+│                         (Web App, Mobile, etc.)                             │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
                                       ▼
@@ -64,12 +64,12 @@ A microservices-based backend for a developer hiring platform. Built with NestJS
                     │
                     ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                         VIDEO CONVERTER SERVICE                           │
+│                         VIDEO CONVERTER SERVICE                          │
 │                                                                          │
 │   1. Download from Cloudinary (temp storage)                             │
 │   2. Probe video metadata (ffprobe)                                      │
 │   3. Check if conversion needed (codec, bitrate, resolution)             │
-│   4. Convert if necessary (ffmpeg → H.264, max 1280px, CRF 30)          │
+│   4. Convert if necessary (ffmpeg → H.264, max 1280px, CRF 30)           │
 │   5. Upload processed video to Cloudinary                                │
 │   6. Cleanup temp files                                                  │
 │   7. Delete original temp upload                                         │
